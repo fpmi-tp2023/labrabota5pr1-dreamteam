@@ -44,7 +44,7 @@ int registration(sqlite3* db)
 
 	rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
-		printf("Не удалось добавить пользователя: %s\n", err_msg);
+		printf("Failed to add a user: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
 	}
@@ -61,7 +61,7 @@ int update_login(sqlite3* db, char* target)
 	size_t bufsize = 0;
 	do
 	{
-		printf("Введите логин (или нажмите Enter для выхода): ");
+		printf("Enter your login (or press Enter to exit): ");
 		getline(&login, &bufsize, stdin);
 		if (strlen(login) == 0 || login[0] == '\n')
 		{
@@ -70,7 +70,7 @@ int update_login(sqlite3* db, char* target)
 		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s';", login);
 		rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
 		if (rc == SQLITE_ROW) {
-			printf("Пользователь с таким логином уже существует.\n");
+			printf("A user with this login already exists.\n");
 		}
 	} while (rc == SQLITE_ROW);
 
@@ -86,7 +86,7 @@ int update_password(sqlite3* db, char* target)
 {
 	char password[100];
 	size_t bufsize = 0;
-	printf("Введите пароль (или нажмите Enter для выхода): ");
+	printf("Enter your password (or press Enter to exit): ");
 	getline(&password, &bufsize, stdin);
 	if (strlen(password) == 0 || password[0] == '\n')
 	{
@@ -99,7 +99,7 @@ int update_password(sqlite3* db, char* target)
 int update_weight(sqlite3* db, int* target)
 {
 	int weight;
-	printf("Введите ваш вес (для выхода введите не число): ");
+	printf("Enter your weight (enter a non-number to exit): ");
 	if (scanf("%d", &weight) == 0)
 	{
 		return RESULT_USER_EXIT;
@@ -111,7 +111,7 @@ int update_weight(sqlite3* db, int* target)
 int update_height(sqlite3* db, int* target)
 {
 	int height;
-	printf("Введите ваш рост (для выхода введите не число): ");
+	printf("Enter your height (enter a non-number to exit): ");
 	if (scanf("%d", &height) == 0)
 	{
 		return RESULT_USER_EXIT;
@@ -124,7 +124,7 @@ int update_gender(sqlite3* db, char* target)
 {
 	char gender[100];
 	size_t bufsize = 0;
-	printf("Введите пароль (или нажмите Enter для выхода): ");
+	printf("Enter your password (or press Enter to exit): ");
 	getline(&gender, &bufsize, stdin);
 	if (strlen(gender) == 0 || gender[0] == '\n')
 	{
