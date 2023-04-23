@@ -99,11 +99,20 @@ int update_password(sqlite3* db, char* target)
 int update_weight(sqlite3* db, int* target)
 {
 	int weight;
-	printf("Enter your weight (enter a non-number to exit): ");
-	if (scanf("%d", &weight) == 0)
+	do
 	{
-		return RESULT_USER_EXIT;
-	}
+		printf("Enter your weight (enter a non-number to exit): ");
+		if (scanf("%d", &weight) == 0)
+		{
+			return RESULT_USER_EXIT;
+		}
+		if (weight <= 0)
+		{
+			printf("Incorrect number. Try again\n");
+		}
+	} while (weight <= 0);
+
+	
 	*target = weight;
 	return RESULT_SUCCESS;
 }
@@ -111,11 +120,19 @@ int update_weight(sqlite3* db, int* target)
 int update_height(sqlite3* db, int* target)
 {
 	int height;
-	printf("Enter your height (enter a non-number to exit): ");
-	if (scanf("%d", &height) == 0)
+	do
 	{
-		return RESULT_USER_EXIT;
-	}
+		printf("Enter your height (enter a non-number to exit): ");
+		if (scanf("%d", &height) == 0)
+		{
+			return RESULT_USER_EXIT;
+		}
+		if (height <= 0)
+		{
+			printf("Incorrect number. Try again\n");
+		}
+	} while (height <= 0);
+
 	*target = height;
 	return RESULT_SUCCESS;
 }
