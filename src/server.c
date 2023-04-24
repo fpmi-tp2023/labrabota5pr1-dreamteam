@@ -39,7 +39,7 @@ int registration(sqlite3* db)
 	}
 
 
-	sprintf(sql_query, "INSERT INTO Client VALUES ('%s', '%s', '%d', '%d', '%s');", 
+	sprintf(sql_query, "INSERT INTO Client VALUES ('%s', '%s', '%d', '%d', '%s');",
 		login, password, weight, height, gender);
 
 	rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
@@ -97,6 +97,62 @@ int authorization(sqlite3* db)
 	}
 
 	return client_id;
+}
+
+int disp_client(sqlite3* db, int id)
+{
+	char* query = sqlite3_mprintf("SELECT login, gender, weight, height, plan_id FROM users WHERE id = %d", id);
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error in preparing the request: %s\n", sqlite3_errmsg(db));
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	rc = sqlite3_step(stmt);
+	if (rc == SQLITE_ROW) {
+		printf("Hello, %s\n", sqlite3_column_text(stmt, 0));
+		printf("Gender: %s\n", sqlite3_column_text(stmt, 1));
+		printf("Current weight: %s\n", sqlite3_column_int(stmt, 2));
+		printf("Current height: %s\n", sqlite3_column_int(stmt, 3));
+		if (sqlite3_column_int(stmt, 4) == NULL)
+		{
+			printf("You don't have a meal plan yet. Make an order to get daily nutrition recommendations!\n");
+		}
+		else
+		{
+			sqlite3_finalize(stmt);
+			sqlite3_free(query);
+			query = sqlite3_mprintf("SELECT p.type, p.period, m.breakfast, m.lunch, m.dinner, m.calories, "
+				"m.proteins, m.fats, m.carbs FROM Plan p INNER JOIN Menu m ON p.menu_id = m.id WHERE p.id = %d", 
+				sqlite3_column_int(stmt, 4));
+			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+			if (rc != SQLITE_OK) {
+				fprintf(stderr, "Error in preparing the request: %s\n", sqlite3_errmsg(db));
+				return RESULT_ERROR_UNKNOWN;
+			}
+			rc = sqlite3_step(stmt);
+			if (rc == SQLITE_ROW)
+			{
+				printf("Current plan: %s %d mon.\n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1));
+				printf("Today's menu:\n");
+				printf("Breakfast - %s\n", sqlite3_column_text(stmt, 2));
+				printf("Lunch - %s\n", sqlite3_column_text(stmt, 3));
+				printf("Dinner - %s\n", sqlite3_column_text(stmt, 4));
+				printf("%d cal., %d pr., %d fat., %d carb.\n", 
+					sqlite3_column_text(stmt, 5), sqlite3_column_text(stmt, 6), sqlite3_column_text(stmt, 7));
+			}
+		}
+	}
+	else {
+		printf("User not found.\n");
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_finalize(stmt);
+	sqlite3_free(query);
+	return RESULT_SUCCESS;
 }
 
 int update_login(sqlite3* db, char* target)
