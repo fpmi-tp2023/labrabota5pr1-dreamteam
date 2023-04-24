@@ -3,9 +3,9 @@
 
 #include <sqlite3.h>
 
-#define RESULT_SUCCESS 1
-#define RESULT_USER_EXIT 0
-#define RESULT_ERROR_ALREADY_EXISTS -1
+#define RESULT_SUCCESS 0
+#define RESULT_USER_EXIT -1
+#define RESULT_ERROR_ALREADY_EXISTS -2
 #define RESULT_ERROR_UNKNOWN -999
 
 int registration(sqlite3* db);
