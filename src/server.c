@@ -52,6 +52,53 @@ int registration(sqlite3* db)
 	return RESULT_SUCCESS;
 }
 
+int authorization(sqlite3* db)
+{
+	char* err_msg = 0;
+	int rc;
+	char sql_query[200];
+
+	char login[100];
+	char password[100];
+	size_t bufsize = 0;
+	int client_id;
+
+	do
+	{
+		printf("Enter your login (or press Enter to exit): ");
+		getline(&login, &bufsize, stdin);
+		if (strlen(login) == 0 || login[0] == '\n')
+		{
+			return RESULT_USER_EXIT;
+		}
+
+		printf("Enter your password (or press Enter to exit): ");
+		getline(&password, &bufsize, stdin);
+		if (strlen(password) == 0 || password[0] == '\n')
+		{
+			return RESULT_USER_EXIT;
+		}
+
+		if (login == admin_login && password == admin_password)
+		{
+			return 0;
+		}
+
+		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s' AND password = '%s';", login, password);
+		rc = sqlite3_exec(db, sql_query, callback_auth, &client_id, &err_msg);
+		if (rc != SQLITE_OK) {
+			printf("Incorrect login or password.\n");
+		}
+	} while (rc != SQLITE_OK);
+
+	if (err_msg != NULL)
+	{
+		sqlite3_free(err_msg);
+	}
+
+	return client_id;
+}
+
 int update_login(sqlite3* db, char* target)
 {
 	char* err_msg = NULL;
@@ -155,4 +202,11 @@ int update_gender(sqlite3* db, char* target)
 	}
 	strcpy(target, gender);
 	return RESULT_SUCCESS;
+}
+
+int callback_auth(void* client_id, int argc, char** argv, char** column_name) {
+	if (argc > 0) {
+		*((int*)client_id) = atoi(argv[0]);
+	}
+	return 0;
 }
