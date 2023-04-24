@@ -67,6 +67,12 @@ int update_login(sqlite3* db, char* target)
 		{
 			return RESULT_USER_EXIT;
 		}
+
+		if (login == admin_login)
+		{
+			printf("A user with this login already exists.\n");
+		}
+
 		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s';", login);
 		rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
 		if (rc == SQLITE_ROW) {
