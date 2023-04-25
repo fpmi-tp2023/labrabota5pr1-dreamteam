@@ -114,6 +114,7 @@ int disp_client(sqlite3* db, int id)
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Error when trying to display information: %s\n", sqlite3_errmsg(db));
+		sqlite3_free(query);
 		return RESULT_ERROR_UNKNOWN;
 	}
 
@@ -295,21 +296,32 @@ int make_order(sqlite3* db, int client_id)
 {
 	char* query;
 	char* err_msg = NULL;
-	int rc;
-	float bmi = -1;
-	query = sqlite3_mprintf("SELECT bmi FROM Client WHERE id = %d", client_id);
-	rc = sqlite3_exec(db, query, callback_bmi, &bmi, &err_msg);
-	if (rc != SQLITE_OK || bmi == -1) {
-		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", err_msg);
-		sqlite3_free(err_msg);
+	query = sqlite3_mprintf("SELECT bmi, plan_id FROM Client WHERE id = %d", client_id);
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
 		sqlite3_free(query);
 		return RESULT_ERROR_UNKNOWN;
 	}
 
+	rc = sqlite3_step(stmt);
+	float bmi;
+	int plan_cur_id;
+	if (rc == SQLITE_ROW) {
+		bmi = sqlite3_column_double(stmt, 0);
+		plan_cur_id = sqlite3_column_int(stmt, 1);
+	}
+	else {
+		printf("User not found.\n");
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_finalize(stmt);
 	sqlite3_free(query);
-	query = sqlite3_mprintf("SELECT id, type, period, price FROM Plan WHERE min_bmi <= %f AND max_bmi > %f",
-		bmi, bmi);
-	sqlite3_stmt* stmt;
+	query = sqlite3_mprintf("SELECT id, type, period, price FROM Plan WHERE min_bmi <= %f AND max_bmi > %f"
+		" AND id != %d", bmi, bmi, plan_cur_id);
 	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
@@ -518,18 +530,6 @@ int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 		if (column_name[i] == "weight")
 		{
 			*((int*)weight) = atoi(argv[i]);
-			break;
-		}
-	}
-	return 0;
-}
-
-int callback_bmi(void* bmi, int argc, char** argv, char** column_name) {
-	for (int i = 0; i < argc; i++)
-	{
-		if (column_name[i] == "bmi")
-		{
-			*((float*)bmi) = atoi(argv[i]);
 			break;
 		}
 	}
