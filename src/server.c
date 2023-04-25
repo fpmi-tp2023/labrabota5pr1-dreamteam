@@ -108,7 +108,8 @@ int authorization(sqlite3* db)
 
 int disp_client(sqlite3* db, int id)
 {
-	char* query = sqlite3_mprintf("SELECT login, gender, weight, height, bmi, plan_id FROM users WHERE id = %d", id);
+	char* query = sqlite3_mprintf("SELECT login, gender, weight, height, bmi, plan_id, "
+		"menu_id FROM Client WHERE id = %d", id);
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
@@ -133,11 +134,12 @@ int disp_client(sqlite3* db, int id)
 		else
 		{
 			float bmi = sqlite3_column_int(stmt, 4);
+			int menu_id = sqlite3_column_int(stmt, 6);
+
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
-			query = sqlite3_mprintf("SELECT p.type, p.period, m.breakfast, m.lunch, m.dinner, m.calories, "
-				"m.proteins, m.fats, m.carbs FROM Plan p INNER JOIN Menu m ON p.menu_id = m.id WHERE p.id = %d", 
-				plan_id);		
+
+			query = sqlite3_mprintf("SELECT type, period FROM Plan WHERE p.id = %d", plan_id);		
 			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc != SQLITE_OK) {
 				fprintf(stderr, "Error when trying to display meal plan information: %s\n", sqlite3_errmsg(db));
@@ -147,16 +149,30 @@ int disp_client(sqlite3* db, int id)
 			if (rc == SQLITE_ROW)
 			{
 				printf("Current plan: %s %d mon.\n", sqlite3_column_text(stmt, 0), sqlite3_column_int(stmt, 1));
+			}
+
+			sqlite3_free(query);
+			sqlite3_finalize(stmt);
+
+			query = sqlite3_mprintf("SELECT m.breakfast, m.lunch, m.dinner, m.calories, "
+				"m.proteins, m.fats, m.carbs from Menu WHERE id = %i", menu_id);
+			if (rc != SQLITE_OK) {
+				fprintf(stderr, "Error when trying to display menu information: %s\n", sqlite3_errmsg(db));
+				return RESULT_ERROR_UNKNOWN;
+			}
+			if (rc == SQLITE_ROW)
+			{
 				printf("Today's menu:\n");
 				printf("Breakfast - %s\n", sqlite3_column_text(stmt, 2));
 				printf("Lunch - %s\n", sqlite3_column_text(stmt, 3));
 				printf("Dinner - %s\n", sqlite3_column_text(stmt, 4));
-				printf("%d cal., %d pr., %d fat., %d carb.\n", 
+				printf("%d cal., %d pr., %d fat., %d carb.\n",
 					sqlite3_column_text(stmt, 5), sqlite3_column_text(stmt, 6), sqlite3_column_text(stmt, 7));
 			}
 
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
+
 			query = sqlite3_mprintf("SELECT * FROM Plan WHERE id=? AND ? BETWEEN min_bmi AND max_bmi");
 			rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc == SQLITE_OK) {
