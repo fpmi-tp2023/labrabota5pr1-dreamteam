@@ -121,17 +121,19 @@ int disp_client(sqlite3* db, int id)
 		printf("Current weight: %s\n", sqlite3_column_int(stmt, 2));
 		printf("Current height: %s\n", sqlite3_column_int(stmt, 3));
 		printf("Current BMI: %.3f\n", sqlite3_column_int(stmt, 4));
-		if (sqlite3_column_int(stmt, 5) == NULL)
+		int plan_id = sqlite3_column_int(stmt, 5);
+		if (plan_id == NULL)
 		{
 			printf("No meal plan yet.\n");
 		}
 		else
 		{
+			float bmi = sqlite3_column_int(stmt, 4);
 			sqlite3_free(query);
+			sqlite3_finalize(stmt);
 			query = sqlite3_mprintf("SELECT p.type, p.period, m.breakfast, m.lunch, m.dinner, m.calories, "
 				"m.proteins, m.fats, m.carbs FROM Plan p INNER JOIN Menu m ON p.menu_id = m.id WHERE p.id = %d", 
-				sqlite3_column_int(stmt, 5));
-			sqlite3_finalize(stmt);
+				plan_id);		
 			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc != SQLITE_OK) {
 				fprintf(stderr, "Error when trying to display meal plan information: %s\n", sqlite3_errmsg(db));
@@ -147,6 +149,25 @@ int disp_client(sqlite3* db, int id)
 				printf("Dinner - %s\n", sqlite3_column_text(stmt, 4));
 				printf("%d cal., %d pr., %d fat., %d carb.\n", 
 					sqlite3_column_text(stmt, 5), sqlite3_column_text(stmt, 6), sqlite3_column_text(stmt, 7));
+			}
+
+			sqlite3_free(query);
+			sqlite3_finalize(stmt);
+			query = sqlite3_mprintf("SELECT * FROM Plan WHERE id=? AND ? BETWEEN min_bmi AND max_bmi");
+			rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+			if (rc == SQLITE_OK) {
+				sqlite3_bind_int(stmt, 1, id);
+				sqlite3_bind_double(stmt, 2, bmi);
+			}
+			else {
+				fprintf(stderr, "Error when trying to display meal plan recommendations: %s\n", sqlite3_errmsg(db));
+				return RESULT_ERROR_UNKNOWN;
+			}
+
+			rc = sqlite3_step(stmt);
+			if (rc != SQLITE_ROW)
+			{
+				printf("It is recommended that you change your meal plan");
 			}
 		}
 	}
@@ -269,7 +290,36 @@ int delete_client(sqlite3* db, int id)
 
 int make_order(sqlite3* db, int id)
 {
+	char* query;
+	char* err_msg = NULL;
+	int rc;
+	float bmi = -1;
+	query = sqlite3_mprintf("SELECT bmi FROM Client WHERE id = %d", id);
+	rc = sqlite3_exec(db, query, callback_bmi, &bmi, &err_msg);
+	if (rc != SQLITE_OK || bmi == -1) {
+		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
 
+	sqlite3_free(query);
+	query = sqlite3_mprintf("SELECT type, period, price FROM Plan WHERE min_bmi <= %f AND max_bmi > %f", bmi, bmi);
+	sqlite3_stmt* stmt;
+	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
+		sqlite3_finalize(stmt);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		char* type = sqlite3_column_text(stmt, 0);
+		int period = sqlite3_column_int(stmt, 1);
+		double price = sqlite3_column_double(stmt, 2);
+		printf("%d\t%d\t$%.2f\n", id, period, price);
+	}
 }
 
 int update_login(sqlite3* db, char* target)
@@ -407,6 +457,18 @@ int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 		if (column_name[i] == "weight")
 		{
 			*((int*)weight) = atoi(argv[i]);
+			break;
+		}
+	}
+	return 0;
+}
+
+int callback_bmi(void* bmi, int argc, char** argv, char** column_name) {
+	for (int i = 0; i < argc; i++)
+	{
+		if (column_name[i] == "bmi")
+		{
+			*((float*)bmi) = atoi(argv[i]);
 			break;
 		}
 	}
