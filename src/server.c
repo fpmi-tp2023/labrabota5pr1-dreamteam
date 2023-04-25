@@ -1,5 +1,8 @@
 #include "../include/interface.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
 
 int registration(sqlite3* db)
 {
@@ -26,13 +29,13 @@ int registration(sqlite3* db)
 		return RESULT_USER_EXIT;
 	}
 
-	int weight = NULL;
+	int weight = 0;
 	if (update_weight(db, &weight) == RESULT_USER_EXIT)
 	{
 		return RESULT_USER_EXIT;
 	}
 
-	int height = NULL;
+	int height = 0;
 	if (update_height(db, &height) == RESULT_USER_EXIT)
 	{
 		return RESULT_USER_EXIT;
@@ -122,7 +125,7 @@ int disp_client(sqlite3* db, int id)
 		printf("Current height: %s\n", sqlite3_column_int(stmt, 3));
 		printf("Current BMI: %.3f\n", sqlite3_column_int(stmt, 4));
 		int plan_id = sqlite3_column_int(stmt, 5);
-		if (plan_id == NULL)
+		if (plan_id == 0)
 		{
 			printf("No meal plan yet.\n");
 		}
@@ -288,13 +291,13 @@ int delete_client(sqlite3* db, int id)
 	return RESULT_SUCCESS;
 }
 
-int make_order(sqlite3* db, int id)
+int make_order(sqlite3* db, int client_id)
 {
 	char* query;
 	char* err_msg = NULL;
 	int rc;
 	float bmi = -1;
-	query = sqlite3_mprintf("SELECT bmi FROM Client WHERE id = %d", id);
+	query = sqlite3_mprintf("SELECT bmi FROM Client WHERE id = %d", client_id);
 	rc = sqlite3_exec(db, query, callback_bmi, &bmi, &err_msg);
 	if (rc != SQLITE_OK || bmi == -1) {
 		fprintf(stderr, "Error when trying to display the proposed plans: %s\n", err_msg);
@@ -304,7 +307,8 @@ int make_order(sqlite3* db, int id)
 	}
 
 	sqlite3_free(query);
-	query = sqlite3_mprintf("SELECT type, period, price FROM Plan WHERE min_bmi <= %f AND max_bmi > %f", bmi, bmi);
+	query = sqlite3_mprintf("SELECT id, type, period, price FROM Plan WHERE min_bmi <= %f AND max_bmi > %f",
+		bmi, bmi);
 	sqlite3_stmt* stmt;
 	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
@@ -314,12 +318,69 @@ int make_order(sqlite3* db, int id)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	while (sqlite3_step(stmt) == SQLITE_ROW) {
-		char* type = sqlite3_column_text(stmt, 0);
-		int period = sqlite3_column_int(stmt, 1);
-		double price = sqlite3_column_double(stmt, 2);
-		printf("%d\t%d\t$%.2f\n", id, period, price);
+	int max_periods_amount = 3;
+	int* plans_id = (int*)calloc(max_periods_amount, sizeof(int));
+	printf("Available meal plans for your BMI:\n");
+	printf("ID\tType\tPeriod(mon.)\tPrice\n");
+
+	for (int i = 0; sqlite3_step(stmt) == SQLITE_ROW; i++) {
+		plans_id[i] = sqlite3_column_int(stmt, 0);
+		printf("%d\t%s\t%d\t$%.2f\n", plans_id[i], sqlite3_column_text(stmt, 1),
+			sqlite3_column_int(stmt, 2), sqlite3_column_double(stmt, 3));
 	}
+
+	int usr_choice;
+	int found = 0;
+	do
+	{
+		printf("Enter the ID of the meal plan you want to order (enter a non-number to exit): ");
+		if (scanf("%d", &usr_choice) == 0)
+		{
+			return RESULT_USER_EXIT;
+		}
+		for (int i = 0; i < max_periods_amount && plans_id[i] != 0; i++)
+		{
+			if (usr_choice == plans_id[i])
+			{
+				found = 1;
+				break;
+			}
+		}
+		if (found == 0)
+		{
+			printf("Incorrect number. Try again\n");
+		}
+	} while (found == 0);
+
+	sqlite3_finalize(stmt);
+	sqlite3_free(query);
+
+	time_t now = time(NULL);
+	char datestr[20];
+	strftime(datestr, sizeof(datestr), "%Y-%m-%d", localtime(&now));
+	query = sqlite3_mprintf("INSERT INTO Order VALUES('%d', '%s', '%d'); ",
+		client_id, datestr, usr_choice);
+	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
+	if (rc != SQLITE_OK) {
+		printf("Failed to process an order: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_free(query);
+	query = sqlite3_mprintf("UPDATE Client SET plan_id = '%d' WHERE id = %d", usr_choice, client_id);
+
+	rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error when updating plan: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_free(query);
+	return RESULT_SUCCESS;
 }
 
 int update_login(sqlite3* db, char* target)
