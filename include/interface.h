@@ -28,7 +28,7 @@ int update_gender(sqlite3* db, char* target);
 
 int delete_client(sqlite3* db, int id);
 
-int make_order(sqlite3* db);
+int make_order(sqlite3* db, int id);
 
 int disp_all_clients(sqlite3* db);
 
