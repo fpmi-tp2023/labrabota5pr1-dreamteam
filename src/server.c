@@ -214,6 +214,30 @@ int update_client(sqlite3* db, int id, int what_to_update)
 	return RESULT_SUCCESS;
 }
 
+int delete_client(sqlite3* db, int id)
+{
+	char answer;
+	printf("Do you really want to delete your account? (y/n): ");
+	scanf("%c", &answer);
+	if (answer != 'y' && answer != 'Y') {
+		return RESULT_USER_EXIT;
+	}
+
+	char* query = sqlite3_mprintf("DELETE FROM Client WHERE id = %d", id);
+
+	char* err_msg = NULL;
+	int rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error when deleting an account: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_free(query);
+	return RESULT_SUCCESS;
+}
+
 int update_login(sqlite3* db, char* target)
 {
 	char* err_msg = NULL;
