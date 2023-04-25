@@ -155,6 +155,65 @@ int disp_client(sqlite3* db, int id)
 	return RESULT_SUCCESS;
 }
 
+int update_client(sqlite3* db, int id, int what_to_update)
+{
+	void* target = NULL;
+	char* query;
+	switch (what_to_update)
+	{
+	case (1):
+		if (update_login(db, (char*)target) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET login = '%s' WHERE id = %d", (char*)target, id);
+		break;
+	case (2):
+		if (update_password(db, (char*)target) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET password = '%s' WHERE id = %d", (char*)target, id);
+		break;
+	case (3):
+		if (update_weight(db, (int*)target) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET weight = '%s' WHERE id = %d", *(int*)target, id);
+		break;
+	case (4):
+		if (update_height(db, (int*)target) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET height = '%s' WHERE id = %d", *(int*)target, id);
+		break;
+	case (5):
+		if (update_gender(db, (char*)target) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET gender = '%s' WHERE id = %d", (char*)target, id);
+		break;
+	default:
+		printf("Option not found.\n");
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	char* err_msg = NULL;
+	int rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error when updating data: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	sqlite3_free(query);
+	return RESULT_SUCCESS;
+}
+
 int update_login(sqlite3* db, char* target)
 {
 	char* err_msg = NULL;
