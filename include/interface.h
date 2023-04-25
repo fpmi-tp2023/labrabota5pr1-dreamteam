@@ -30,7 +30,7 @@ int delete_client(sqlite3* db, int client_id);
 
 int make_order(sqlite3* db, int client_id);
 
-int update_menu(sqlite3* db, int client_id);
+int update_menu(sqlite3* db, int* target, int client_id);
 
 int disp_all_clients(sqlite3* db);
 
