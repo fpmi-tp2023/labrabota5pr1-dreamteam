@@ -10,6 +10,7 @@ int disp_all_clients(sqlite3* db)
 	if (sqlite3_exec(db, sql, callback, 0, 0) != SQLITE_OK) {
 		return RESULT_ERROR_UNKNOWN;
 	}
+	return RESULT_SUCCESS;
 }
 
 static int callback(void* data, int argc, char** argv, char** azColName) {
