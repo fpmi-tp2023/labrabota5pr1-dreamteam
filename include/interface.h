@@ -34,6 +34,10 @@ int update_menu(sqlite3* db, int* target, int client_id);
 
 int disp_all_clients(sqlite3* db);
 
+int disp_all_orders(sqlite3* db);
+
+int delåte_all(sqlite3* db);
+
 int disp_money_period(sqlite3* db);
 
 int disp_most_popular_menu(sqlite3* db);
