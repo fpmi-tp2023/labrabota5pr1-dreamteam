@@ -106,7 +106,7 @@ int disp_client(sqlite3* db, int id)
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		fprintf(stderr, "Error in preparing the request: %s\n", sqlite3_errmsg(db));
+		fprintf(stderr, "Error when trying to display information: %s\n", sqlite3_errmsg(db));
 		return RESULT_ERROR_UNKNOWN;
 	}
 
@@ -129,7 +129,7 @@ int disp_client(sqlite3* db, int id)
 				sqlite3_column_int(stmt, 4));
 			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc != SQLITE_OK) {
-				fprintf(stderr, "Error in preparing the request: %s\n", sqlite3_errmsg(db));
+				fprintf(stderr, "Error when trying to display meal plan information: %s\n", sqlite3_errmsg(db));
 				return RESULT_ERROR_UNKNOWN;
 			}
 			rc = sqlite3_step(stmt);
