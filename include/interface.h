@@ -12,7 +12,7 @@ int registration(sqlite3* db);
 
 int authorization(sqlite3* db);
 
-int disp_client(sqlite3* db, int id);
+int disp_client(sqlite3* db, int client_id);
 
 int update_client(sqlite3* db, int id, int what_to_update);
 
@@ -26,9 +26,11 @@ int update_height(sqlite3* db, int* target);
 
 int update_gender(sqlite3* db, char* target);
 
-int delete_client(sqlite3* db, int id);
+int delete_client(sqlite3* db, int client_id);
 
-int make_order(sqlite3* db, int id);
+int make_order(sqlite3* db, int client_id);
+
+int update_menu(sqlite3* db, int client_id);
 
 int disp_all_clients(sqlite3* db);
 
