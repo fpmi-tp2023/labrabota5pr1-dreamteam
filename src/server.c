@@ -52,7 +52,7 @@ int registration(sqlite3* db)
 	return RESULT_SUCCESS;
 }
 
-int authorization(sqlite3* db)
+int authorization(sqlite3* db, int* target_client_id)
 {
 	char* err_msg = 0;
 	int rc;
@@ -81,7 +81,8 @@ int authorization(sqlite3* db)
 
 		if (login == admin_login && password == admin_password)
 		{
-			return 0;
+			*target_client_id = 0;
+			return RESULT_SUCCESS;
 		}
 
 		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s' AND password = '%s';", login, password);
@@ -99,7 +100,8 @@ int authorization(sqlite3* db)
 		sqlite3_free(err_msg);
 	}
 
-	return client_id;
+	*target_client_id = client_id;
+	return RESULT_SUCCESS;
 }
 
 int disp_client(sqlite3* db, int id)
@@ -422,7 +424,7 @@ int make_order(sqlite3* db, int client_id)
 	return RESULT_SUCCESS;
 }
 
-int update_menu(sqlite3* db, int* target, int client_id)
+int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 {
 	char* query;
 	char* err_msg = NULL;
@@ -496,7 +498,7 @@ int update_menu(sqlite3* db, int* target, int client_id)
 		} while (found == 0);
 
 		
-		*target = usr_choice;
+		*target_menu_id = usr_choice;
 		free(menus_id);
 	}
 	else {
