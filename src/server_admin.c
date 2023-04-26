@@ -78,7 +78,7 @@ int disp_money_period(sqlite3* db)
 int disp_most_popular_menu(sqlite3* db)
 {
 	char* err_msg = 0;
-	char* sql = "SELECT * FROM Menu WHERE id = (SELECT menu_id FROM Client GROUP BY menu_id ORDER BY COUNT(*) DESC LIMIT 1);";
+	char* sql = "SELECT * FROM Menu WHERE id = (SELECT menu_id FROM Client GROUP BY menu_id ORDER BY COUNT(*) DESC LIMIT 3);";
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
