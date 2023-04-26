@@ -2,6 +2,10 @@
 #define INTERFACE_H
 
 #include <sqlite3.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
 
 #define RESULT_SUCCESS 0
 #define RESULT_USER_EXIT -1

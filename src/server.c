@@ -1,8 +1,4 @@
 #include "../include/interface.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
 
 int registration(sqlite3* db)
 {
