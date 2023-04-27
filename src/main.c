@@ -20,8 +20,8 @@ void print_result_prompt(int result)
 int main()
 {
     sqlite3* db;
-    if (sqlite3_open("/home/sotokcuk/Документы/poebota/labrabota5pr1-dreamteam/db/nutrition.db", &db) != SQLITE_OK) {
-        fprintf(stderr, "Failed to open database: %s\n", sqlite3_errmsg(db));
+    if (sqlite3_open("D:\\study\\tp\\GoodNutrition\\repo\\db\\nutrition.db", &db) != SQLITE_OK) {
+        printf("Failed to open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return 1;
     }
@@ -35,7 +35,7 @@ int main()
             "2 - Register\n");
         printf("Enter the number of the option (enter a non-number to exit): ");
 
-        if (scanf("%d", &usr_input) == 0)
+        if (scanf_s("%d", &usr_input) == 0)
         {
             result = RESULT_USER_EXIT;
             continue;
@@ -71,7 +71,7 @@ int main()
                         printf("---------------------------------");
                         printf("Enter the number of the option: ");
                         usr_input = -1;
-                        scanf("%d", &usr_input);
+                        scanf_s("%d", &usr_input);
 
                         switch (usr_input)
                         {
@@ -92,7 +92,7 @@ int main()
                             printf("---------------------------------");
                             printf("Enter the number of the option (enter a non-number to exit): ");
 
-                            if (scanf("%d", &usr_input) == 0)
+                            if (scanf_s("%d", &usr_input) == 0)
                             {
                                 result = RESULT_SUCCESS;
                                 continue;
@@ -131,8 +131,8 @@ int main()
                 {
                     do
                     {
-                        printf("---------------♛ADMIN♛----------------");
-                        printf("1 - Display all clients\n\t"
+                        printf("---------------ADMIN----------------\n");
+                        printf("1 - Display all clients\n"
                             "2 - Display all orders\n"
                             "3 - Display the amount of money received during the period\n"
                             "4 - Display the menus that are most in demand (TOP 3)\n"
@@ -141,54 +141,62 @@ int main()
                             "7 - Increase (decrease) prices by a certain percent \n"
                             "8 - Delete all clients and orders\n"
                             "9 - Log out\n");
-                        printf("---------------♛ADMIN♛----------------");
+                        printf("---------------ADMIN----------------\n");
                         printf("Enter the number of the option: ");
                         usr_input = -1;
-                        scanf("%d", &usr_input);
+                        scanf_s("%d", &usr_input);
 
                         switch (usr_input)
                         {
                         case 1:
                             result = disp_all_clients(db);
                             print_result_prompt(result);
+                            system("pause");
                             break;
 
                         case 2:
                             result = disp_all_orders(db);
                             print_result_prompt(result);
+                            system("pause");
                             break;
 
                         case 3:
-                            result = disp_money_period(db);
-                            print_result_prompt(result);
+                            //result = disp_money_period(db);
+                            //print_result_prompt(result);
+                            system("pause");
                             result = RESULT_SUCCESS;
                             break;
 
                         case 4:
                             result = disp_most_popular_menu(db);
                             print_result_prompt(result);
+                            system("pause");
                             break;
 
                         case 5:
                             result = disp_sold_plans(db);
                             print_result_prompt(result);
+                            system("pause");
                             break;
 
                         case 6:
-                            result = disp_orders_by_date(db);
-                            print_result_prompt(result);
+                            //result = disp_orders_by_date(db);
+                            //print_result_prompt(result);
+                            system("pause");
                             result = RESULT_SUCCESS;
                             break;
 
                         case 7:
                             result = update_prices(db);
                             print_result_prompt(result);
+                            system("pause");
                             result = RESULT_SUCCESS;
                             break;
                             
                         case 8:
                             result = delete_all(db);
                             print_result_prompt(result);
+                            system("pause");
                             result = RESULT_SUCCESS;
                             break;
 
@@ -199,6 +207,7 @@ int main()
                         default:
                             printf("Incorrect number. Try again\n");
                             result = RESULT_ERROR_UNKNOWN;
+                            system("pause");
                             break;
                         }
                     } while (result != RESULT_USER_EXIT);

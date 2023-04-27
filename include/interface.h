@@ -10,8 +10,8 @@
 #define RESULT_SUCCESS 0
 #define RESULT_USER_EXIT -1
 #define RESULT_ERROR_UNKNOWN -999
-#define admin_login "admin"
-#define admin_password "admin"
+#define ADMIN_LOGIN "admin"
+#define ADMIN_PASSWORD "admin"
 
 int registration(sqlite3* db);
 
@@ -52,9 +52,5 @@ int disp_sold_plans(sqlite3* db);
 int update_prices(sqlite3* db);
 
 int disp_orders_by_date(sqlite3* db);
-
-// const char* admin_login = "admin";
-
-// const char* admin_password = "admin";
 
 #endif //INTERFACE_H
