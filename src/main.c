@@ -1,4 +1,5 @@
-﻿#include "../include/interface.h"
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include "../include/interface.h"
 
 void print_result_prompt(int result)
 {
@@ -35,7 +36,7 @@ int main()
             "2 - Register\n");
         printf("Enter the number of the option (enter a non-number to exit): ");
 
-        if (scanf_s("%d", &usr_input) == 0)
+        if (scanf("%d", &usr_input) == 0)
         {
             result = RESULT_USER_EXIT;
             continue;
@@ -71,7 +72,7 @@ int main()
                         printf("---------------------------------");
                         printf("Enter the number of the option: ");
                         usr_input = -1;
-                        scanf_s("%d", &usr_input);
+                        scanf("%d", &usr_input);
 
                         switch (usr_input)
                         {
@@ -92,7 +93,7 @@ int main()
                             printf("---------------------------------");
                             printf("Enter the number of the option (enter a non-number to exit): ");
 
-                            if (scanf_s("%d", &usr_input) == 0)
+                            if (scanf("%d", &usr_input) == 0)
                             {
                                 result = RESULT_SUCCESS;
                                 continue;
@@ -144,7 +145,7 @@ int main()
                         printf("---------------ADMIN----------------\n");
                         printf("Enter the number of the option: ");
                         usr_input = -1;
-                        scanf_s("%d", &usr_input);
+                        scanf("%d", &usr_input);
 
                         switch (usr_input)
                         {

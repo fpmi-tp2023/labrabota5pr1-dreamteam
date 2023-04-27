@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "../include/interface.h"
 
 int callback_client_id(void* client_id, int argc, char** argv, char** column_name) {
@@ -75,7 +76,7 @@ int registration(sqlite3* db)
 
 	float bmi = (float)weight / (height * height);
 
-	sprintf_s(sql_query, sizeof(sql_query), "INSERT INTO Client VALUES ('%s', '%s', '%s', '%d', '%d', '%f');",
+	sprintf(sql_query, "INSERT INTO Client VALUES ('%s', '%s', '%s', '%d', '%d', '%f');",
 		login, password, gender, weight, height, bmi);
 
 	free(login);
@@ -135,7 +136,7 @@ int authorization(sqlite3* db, int* target_client_id)
 			return RESULT_SUCCESS;
 		}
 
-		sprintf_s(sql_query, sizeof(sql_query), "SELECT login FROM Client WHERE login = '%s' AND password = '%s';", login, password);
+		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s' AND password = '%s';", login, password);
 		rc = sqlite3_exec(db, sql_query, callback_client_id, &client_id, &err_msg);
 		if (rc != SQLITE_OK) {
 			printf("Error when trying to log in to the account: %s\n", err_msg);
@@ -183,7 +184,7 @@ int disp_client(sqlite3* db, int id)
 		}
 		else
 		{
-			float bmi = sqlite3_column_int(stmt, 4);
+			float bmi = sqlite3_column_double(stmt, 4);
 			int menu_id = sqlite3_column_int(stmt, 6);
 
 			sqlite3_free(query);
@@ -350,7 +351,7 @@ int delete_client(sqlite3* db, int id)
 {
 	char answer;
 	printf("Do you really want to delete your account? (y/n): ");
-	scanf_s("%c", &answer);
+	scanf("%c", &answer);
 	if (answer != 'y' && answer != 'Y') {
 		return RESULT_USER_EXIT;
 	}
@@ -424,7 +425,7 @@ int make_order(sqlite3* db, int client_id)
 	do
 	{
 		printf("Enter the ID of the meal plan you want to order (enter a non-number to exit): ");
-		if (scanf_s("%d", &usr_choice) == 0)
+		if (scanf("%d", &usr_choice) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
@@ -447,9 +448,7 @@ int make_order(sqlite3* db, int client_id)
 
 	time_t now = time(NULL);
 	char datestr[20];
-	struct tm local_time;
-	localtime_s(&local_time, &now);
-	strftime(datestr, sizeof(datestr), "%Y-%m-%d", &local_time);
+	strftime(datestr, sizeof(datestr), "%Y-%m-%d", localtime(&now));
 
 	query = sqlite3_mprintf("INSERT INTO Orders VALUES('%d', '%s', '%d'); ",
 		client_id, datestr, usr_choice);
@@ -540,7 +539,7 @@ int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 		do
 		{
 			printf("Enter the ID of the menu you prefer (enter a non-number to exit): ");
-			if (scanf_s("%d", &usr_choice) == 0)
+			if (scanf("%d", &usr_choice) == 0)
 			{
 				return RESULT_USER_EXIT;
 			}
@@ -597,7 +596,7 @@ int update_login(sqlite3* db, char* target)
 			printf("A user with this login already exists.\n");
 		}
 
-		sprintf_s(sql_query, sizeof(sql_query), "SELECT login FROM Client WHERE login = '%s';", login);
+		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s';", login);
 		rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
 
 		if (rc == SQLITE_ROW) {
@@ -612,7 +611,7 @@ int update_login(sqlite3* db, char* target)
 	}
 
 	target = malloc(strlen(login) + 1);
-	strcpy_s(target, strlen(login) + 1, login);
+	strcpy(target, login);
 	free(login);
 	return RESULT_SUCCESS;
 }
@@ -632,7 +631,7 @@ int update_password(sqlite3* db, char* target)
 		password[strlen(password) - 1] = 0;
 
 	target = malloc(strlen(password) + 1);
-	strcpy_s(target, strlen(password) + 1, password);
+	strcpy(target, password);
 	free(password);
 	return RESULT_SUCCESS;
 }
@@ -652,7 +651,7 @@ int update_gender(sqlite3* db, char* target)
 		gender[strlen(gender) - 1] = 0;
 
 	target = malloc(strlen(gender) + 1);
-	strcpy_s(target, strlen(gender) + 1, gender);
+	strcpy(target, gender);
 	free(gender);
 	return RESULT_SUCCESS;
 }
@@ -663,7 +662,7 @@ int update_weight(sqlite3* db, int* target)
 	do
 	{
 		printf("Enter your weight (enter a non-number to exit): ");
-		if (scanf_s("%d", &weight) == 0)
+		if (scanf("%d", &weight) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
@@ -684,7 +683,7 @@ int update_height(sqlite3* db, int* target)
 	do
 	{
 		printf("Enter your height (enter a non-number to exit): ");
-		if (scanf_s("%d", &height) == 0)
+		if (scanf("%d", &height) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}

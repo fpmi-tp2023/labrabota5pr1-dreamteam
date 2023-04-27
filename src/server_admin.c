@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "../include/interface.h"
 //#include <regex.h>
 
@@ -43,7 +44,7 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 //		}
 //	} while (reti == REG_NOMATCH);
 //
-//	strcpy_s(target, date);
+//	strcpy(target, date);
 //	regfree(&regex);
 //	return RESULT_SUCCESS;
 //}
@@ -122,7 +123,7 @@ int delete_all(sqlite3* db)
 //
 //	char sql[100];
 //
-//	sprintf_s(sql, sizeof(sql), "SELECT SUM(Meal_Plan.price) AS revenue FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id WHERE Orders.date BETWEEN '%s' AND '%s';", start_date, end_date);
+//	sprintf(sql, "SELECT SUM(Meal_Plan.price) AS revenue FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id WHERE Orders.date BETWEEN '%s' AND '%s';", start_date, end_date);
 //
 //	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 //	if (rc != SQLITE_OK) {
@@ -169,7 +170,7 @@ int update_prices(sqlite3* db)
 	int plan_id;
 	
 	printf("Enter plan id to update or 0 to update all plans (enter a non-number to exit): ");
-	if (scanf_s("%d", &plan_id) == 0)
+	if (scanf("%d", &plan_id) == 0)
 	{
 		return RESULT_USER_EXIT;
 	}
@@ -179,7 +180,7 @@ int update_prices(sqlite3* db)
 	int rc;
 	if (plan_id != 0)
 	{
-		sprintf_s(query, sizeof(query), "SELECT * FROM Meal_Plan WHERE id = %d", plan_id);
+		sprintf(query, "SELECT * FROM Meal_Plan WHERE id = %d", plan_id);
 		rc = sqlite3_exec(db, query, callback, 0, &err_msg);
 
 		if (rc != SQLITE_OK) {
@@ -194,7 +195,7 @@ int update_prices(sqlite3* db)
 	{
 		printf("Enter positive percent to increase price or negative to decrease price"
 			" (enter a non-integer to exit): ");
-		if (scanf_s("%d", &percent) == 0)
+		if (scanf("%d", &percent) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
@@ -206,11 +207,11 @@ int update_prices(sqlite3* db)
 
 	if (plan_id == 0)
 	{
-		sprintf_s(query, sizeof(query), "UPDATE Meal_Plan SET price = price * (1 + (%d / 100));", percent);
+		sprintf(query, "UPDATE Meal_Plan SET price = price * (1 + (%d / 100));", percent);
 	}
 	else
 	{
-		sprintf_s(query, sizeof(query), "UPDATE Meal_Plan SET price = price * (100 + (%d / 100)) WHERE id = %d;", 
+		sprintf(query, "UPDATE Meal_Plan SET price = price * (100 + (%d / 100)) WHERE id = %d;", 
 			percent, plan_id);
 	}
 
@@ -236,7 +237,7 @@ int update_prices(sqlite3* db)
 //	char* err_msg = 0;
 //	int rc;
 //	char sql[100];
-//	sprintf_s(sql, sizeof(sql), "SELECT * FROM Orders WHERE date = '%s'", date);
+//	sprintf(sql, "SELECT * FROM Orders WHERE date = '%s'", date);
 //	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 //	if (rc != SQLITE_OK) {
 //		printf("SQL error: %s\n", err_msg);
