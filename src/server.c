@@ -4,7 +4,7 @@
 int callback_client_id(void* client_id, int argc, char** argv, char** column_name) {
 	for (int i = 0; i < argc; i++)
 	{
-		if (column_name[i] == "id")
+		if (strcmp(column_name[i], "id") == 0)
 		{
 			*((int*)client_id) = atoi(argv[i]);
 			break;
@@ -16,7 +16,7 @@ int callback_client_id(void* client_id, int argc, char** argv, char** column_nam
 int callback_height(void* height, int argc, char** argv, char** column_name) {
 	for (int i = 0; i < argc; i++)
 	{
-		if (column_name[i] == "height")
+		if (strcmp(column_name[i], "height") == 0)
 		{
 			*((int*)height) = atoi(argv[i]);
 			break;
@@ -28,7 +28,7 @@ int callback_height(void* height, int argc, char** argv, char** column_name) {
 int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 	for (int i = 0; i < argc; i++)
 	{
-		if (column_name[i] == "weight")
+		if (strcmp(column_name[i], "weight") == 0)
 		{
 			*((int*)weight) = atoi(argv[i]);
 			break;
@@ -76,8 +76,8 @@ int registration(sqlite3* db)
 
 	float bmi = (float)weight / (height * height);
 
-	sprintf(sql_query, "INSERT INTO Client VALUES ('%s', '%s', '%s', '%d', '%d', '%f');",
-		login, password, gender, weight, height, bmi);
+	sprintf(sql_query, "INSERT INTO Client VALUES ('%d', '%s', '%s', '%s', '%d',"
+		" '%d', '%d', '%d', '%f');", NULL, login, password, gender, weight, height, NULL, NULL,  bmi);
 
 	free(login);
 	free(password);

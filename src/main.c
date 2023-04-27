@@ -21,7 +21,7 @@ void print_result_prompt(int result)
 int main()
 {
     sqlite3* db;
-    if (sqlite3_open("D:\\study\\tp\\GoodNutrition\\repo\\db\\nutrition.db", &db) != SQLITE_OK) {
+    if (sqlite3_open("./db/nutrition.db", &db) != SQLITE_OK) {
         printf("Failed to open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return 1;
