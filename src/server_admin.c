@@ -60,7 +60,7 @@ int disp_all_clients(sqlite3* db)
 int disp_all_orders(sqlite3* db)
 {
 	char* err_msg = NULL;
-	const char* sql = "SELECT * FROM Order;";
+	const char* sql = "SELECT * FROM Orders;";
 
 	if (sqlite3_exec(db, sql, callback, 0, &err_msg) != SQLITE_OK) {
 		printf("Error when displaying orders: %s\n", err_msg);
@@ -91,7 +91,7 @@ int delete_all(sqlite3* db)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	const char* sql2 = "DELETE FROM Order;";
+	const char* sql2 = "DELETE FROM Orders;";
 
 	rc = sqlite3_exec(db, sql2, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
@@ -122,7 +122,7 @@ int delete_all(sqlite3* db)
 //
 //	char sql[100];
 //
-//	sprintf_s(sql, sizeof(sql), "SELECT SUM(Meal_Plan.price) AS revenue FROM Order JOIN Meal_Plan ON Order.plan_id = Meal_Plan.id WHERE Order.date BETWEEN '%s' AND '%s';", start_date, end_date);
+//	sprintf_s(sql, sizeof(sql), "SELECT SUM(Meal_Plan.price) AS revenue FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id WHERE Orders.date BETWEEN '%s' AND '%s';", start_date, end_date);
 //
 //	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 //	if (rc != SQLITE_OK) {
@@ -153,7 +153,7 @@ int disp_sold_plans(sqlite3* db)
 {
 	char* err_msg = 0;
 	char* sql = "SELECT Meal_Plan.id, Meal_Plan.type, Meal_Plan.period, Meal_Plan.price, "
-		"COUNT(*), SUM(Meal_Plan.price) FROM Order JOIN Meal_Plan ON Order.plan_id = Meal_Plan.id GROUP BY Meal_Plan.id;";
+		"COUNT(*), SUM(Meal_Plan.price) FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id GROUP BY Meal_Plan.id;";
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
@@ -236,7 +236,7 @@ int update_prices(sqlite3* db)
 //	char* err_msg = 0;
 //	int rc;
 //	char sql[100];
-//	sprintf_s(sql, sizeof(sql), "SELECT * FROM Order WHERE date = '%s'", date);
+//	sprintf_s(sql, sizeof(sql), "SELECT * FROM Orders WHERE date = '%s'", date);
 //	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 //	if (rc != SQLITE_OK) {
 //		printf("SQL error: %s\n", err_msg);

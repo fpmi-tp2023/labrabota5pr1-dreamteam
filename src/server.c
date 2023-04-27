@@ -451,7 +451,7 @@ int make_order(sqlite3* db, int client_id)
 	localtime_s(&local_time, &now);
 	strftime(datestr, sizeof(datestr), "%Y-%m-%d", &local_time);
 
-	query = sqlite3_mprintf("INSERT INTO Order VALUES('%d', '%s', '%d'); ",
+	query = sqlite3_mprintf("INSERT INTO Orders VALUES('%d', '%s', '%d'); ",
 		client_id, datestr, usr_choice);
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 

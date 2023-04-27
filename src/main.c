@@ -210,6 +210,9 @@ int main()
                             system("pause");
                             break;
                         }
+
+                        char c;
+                        while ((c = getchar()) != '\n' && c != EOF) {};
                     } while (result != RESULT_USER_EXIT);
                 }
             }
