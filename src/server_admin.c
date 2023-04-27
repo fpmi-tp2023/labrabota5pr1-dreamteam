@@ -1,4 +1,51 @@
 #include "../include/interface.h"
+#include <regex.h>
+
+static int callback(void* data, int argc, char** argv, char** azColName) {
+	for (int i = 0; i < argc; i++) {
+		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+	}
+	printf("-------------------------------------\n");
+	return 0;
+}
+
+int enter_correct_date(char* target)
+{
+	regex_t regex;
+	int reti = regcomp(&regex, "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 0);
+	if (reti) {
+		printf("Error when checking the correct date format\n");
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	char* date;
+	size_t bufsize = 0;
+
+	do
+	{
+		printf("Enter the date in the format YYYY-MM-DD (or press Enter to exit): ");
+		getline(&date, &bufsize, stdin);
+		if (strlen(date) == 0 || date[0] == '\n')
+		{
+			return RESULT_USER_EXIT;
+		}
+		reti = regexec(&regex, date, 0, NULL, 0);
+		if (!reti) {
+			break;
+		}
+		else if (reti == REG_NOMATCH) {
+			printf("The date does not match the format YYYY-MM-DD\n");
+		}
+		else {
+			printf("Error when checking the correct date format\n");
+			return RESULT_ERROR_UNKNOWN;
+		}
+	} while (reti == REG_NOMATCH);
+
+	strcpy(target, date);
+	regfree(&regex);
+	return RESULT_SUCCESS;
+}
 
 int disp_all_clients(sqlite3* db)
 {
@@ -18,7 +65,7 @@ int disp_all_orders(sqlite3* db)
 	return RESULT_SUCCESS;
 }
 
-int delåte_all(sqlite3* db)
+int delete_all(sqlite3* db)
 {
 	char answer;
 	printf("Do you really want to delete all clients and orders? (y/n): ");
@@ -36,7 +83,7 @@ int delåte_all(sqlite3* db)
 
 	const char* sql2 = "DELETE FROM Order;";
 
-	int rc = sqlite3_exec(db, sql2, 0, 0, 0);
+	rc = sqlite3_exec(db, sql2, 0, 0, 0);
 	if (rc != SQLITE_OK) {
 		return RESULT_ERROR_UNKNOWN;
 	}
@@ -52,7 +99,7 @@ int disp_money_period(sqlite3* db)
 	{
 		return res;
 	}
-	int res = enter_correct_date(end_date);
+	res = enter_correct_date(end_date);
 	if (res != RESULT_SUCCESS)
 	{
 		return res;
@@ -184,51 +231,5 @@ int disp_orders_by_date(sqlite3* db)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	return RESULT_SUCCESS;
-}
-
-static int callback(void* data, int argc, char** argv, char** azColName) {
-	for (int i = 0; i < argc; i++) {
-		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-	}
-	printf("-------------------------------------\n");
-	return 0;
-}
-
-int enter_correct_date(char* target)
-{
-	regex_t regex;
-	int reti = regcomp(&regex, "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 0);
-	if (reti) {
-		printf("Error when checking the correct date format\n");
-		return RESULT_ERROR_UNKNOWN;
-	}
-
-	char* date;
-	size_t bufsize = 0;
-
-	do
-	{
-		printf("Enter the date in the format YYYY-MM-DD (or press Enter to exit): ");
-		getline(&date, &bufsize, stdin);
-		if (strlen(date) == 0 || date[0] == '\n')
-		{
-			return RESULT_USER_EXIT;
-		}
-		reti = regexec(&regex, date, 0, NULL, 0);
-		if (!reti) {
-			break;
-		}
-		else if (reti == REG_NOMATCH) {
-			printf("The date does not match the format YYYY-MM-DD\n");
-		}
-		else {
-			printf("Error when checking the correct date format\n");
-			return RESULT_ERROR_UNKNOWN;
-		}
-	} while (reti == REG_NOMATCH);
-
-	strcpy(target, date);
-	regfree(&regex);
 	return RESULT_SUCCESS;
 }

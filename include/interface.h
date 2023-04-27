@@ -10,6 +10,8 @@
 #define RESULT_SUCCESS 0
 #define RESULT_USER_EXIT -1
 #define RESULT_ERROR_UNKNOWN -999
+#define admin_login "admin"
+#define admin_password "admin"
 
 int registration(sqlite3* db);
 
@@ -39,7 +41,7 @@ int disp_all_clients(sqlite3* db);
 
 int disp_all_orders(sqlite3* db);
 
-int delåte_all(sqlite3* db);
+int delete_all(sqlite3* db);
 
 int disp_money_period(sqlite3* db);
 
@@ -51,8 +53,8 @@ int update_prices(sqlite3* db);
 
 int disp_orders_by_date(sqlite3* db);
 
-const char* admin_login = "admin";
+// const char* admin_login = "admin";
 
-const char* admin_password = "admin";
+// const char* admin_password = "admin";
 
 #endif //INTERFACE_H

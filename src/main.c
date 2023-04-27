@@ -20,7 +20,7 @@ void print_result_prompt(int result)
 int main()
 {
     sqlite3* db;
-    if (sqlite3_open("", &db) != SQLITE_OK) {
+    if (sqlite3_open("/home/sotokcuk/Документы/poebota/labrabota5pr1-dreamteam/db/nutrition.db", &db) != SQLITE_OK) {
         fprintf(stderr, "Failed to open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return 1;
@@ -40,6 +40,8 @@ int main()
             result = RESULT_USER_EXIT;
             continue;
         }
+
+        getchar();
 
         switch (usr_input)
         {
@@ -130,13 +132,13 @@ int main()
                     do
                     {
                         printf("---------------♛ADMIN♛----------------");
-                        printf("1 - Display all clients\n"
+                        printf("1 - Display all clients\n\t"
                             "2 - Display all orders\n"
                             "3 - Display the amount of money received during the period\n"
                             "4 - Display the menus that are most in demand (TOP 3)\n"
                             "5 - Display the number of plans sold and the amount of money received\n"
                             "6 - Display information on all orders received on a particular date\n"
-                            "7 - Increase (decrease) prices by a certain %\n"
+                            "7 - Increase (decrease) prices by a certain percent \n"
                             "8 - Delete all clients and orders\n"
                             "9 - Log out\n");
                         printf("---------------♛ADMIN♛----------------");
@@ -185,7 +187,7 @@ int main()
                             break;
                             
                         case 8:
-                            result = delеte_all(db);
+                            result = delete_all(db);
                             print_result_prompt(result);
                             result = RESULT_SUCCESS;
                             break;
