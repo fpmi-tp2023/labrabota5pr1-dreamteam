@@ -132,6 +132,7 @@ int main()
                 {
                     do
                     {
+                        system("clear"); 
                         printf("---------------ADMIN----------------\n");
                         printf("1 - Display all clients\n"
                             "2 - Display all orders\n"
@@ -153,6 +154,7 @@ int main()
                             system("clear");
                             result = disp_all_clients(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             
                             break;
@@ -161,6 +163,7 @@ int main()
                             system("clear");
                             result = disp_all_orders(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             break;
 
@@ -169,6 +172,7 @@ int main()
                             //result = disp_money_period(db);
                             //print_result_prompt(result);
                             result = RESULT_SUCCESS;
+                            printf("Press enter to continue\n");
                             getchar(); 
                             break;
 
@@ -176,6 +180,7 @@ int main()
                             system("clear");
                             result = disp_most_popular_menu(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             break;
 
@@ -183,6 +188,7 @@ int main()
                             system("clear");
                             result = disp_sold_plans(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             break;
 
@@ -190,6 +196,7 @@ int main()
                             system("clear");
                             //result = disp_orders_by_date(db);
                             //print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             result = RESULT_SUCCESS;
                             break;
@@ -198,6 +205,7 @@ int main()
                             system("clear");
                             result = update_prices(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             result = RESULT_SUCCESS;
                             break;
@@ -206,6 +214,7 @@ int main()
                             system("clear");
                             result = delete_all(db);
                             print_result_prompt(result);
+                            printf("Press enter to continue\n");
                             getchar(); 
                             result = RESULT_SUCCESS;
                             break;
@@ -218,7 +227,6 @@ int main()
                         default:
                             printf("Incorrect number. Try again\n");
                             result = RESULT_ERROR_UNKNOWN;
-                            getchar(); 
                             break;
                         }
 
