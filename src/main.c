@@ -146,69 +146,79 @@ int main()
                         printf("Enter the number of the option: ");
                         usr_input = -1;
                         scanf("%d", &usr_input);
-
+                        system("clear"); 
                         switch (usr_input)
                         {
                         case 1:
+                            system("clear");
                             result = disp_all_clients(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
+                            
                             break;
 
                         case 2:
+                            system("clear");
                             result = disp_all_orders(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             break;
 
                         case 3:
+                            system("clear");
                             //result = disp_money_period(db);
                             //print_result_prompt(result);
-                            system("pause");
                             result = RESULT_SUCCESS;
+                            getchar(); 
                             break;
 
                         case 4:
+                            system("clear");
                             result = disp_most_popular_menu(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             break;
 
                         case 5:
+                            system("clear");
                             result = disp_sold_plans(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             break;
 
                         case 6:
+                            system("clear");
                             //result = disp_orders_by_date(db);
                             //print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             result = RESULT_SUCCESS;
                             break;
 
                         case 7:
+                            system("clear");
                             result = update_prices(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             result = RESULT_SUCCESS;
                             break;
                             
                         case 8:
+                            system("clear");
                             result = delete_all(db);
                             print_result_prompt(result);
-                            system("pause");
+                            getchar(); 
                             result = RESULT_SUCCESS;
                             break;
 
                         case 9:
+                            system("clear");
                             result = RESULT_USER_EXIT;
                             break;
 
                         default:
                             printf("Incorrect number. Try again\n");
                             result = RESULT_ERROR_UNKNOWN;
-                            system("pause");
+                            getchar(); 
                             break;
                         }
 
