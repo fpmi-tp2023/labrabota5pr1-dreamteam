@@ -29,6 +29,7 @@ int main()
 
     int usr_input;
     int result = RESULT_SUCCESS;
+    char c;
 
     do
     {
@@ -64,15 +65,16 @@ int main()
                             break;
                         }
 
-                        printf("---------------------------------");
+                        printf("---------------------------------\n");
                         printf("1 - Order plan\n"
                             "2 - Update info...\n"
                             "3 - Delete account\n"
                             "4 - Log out\n");
-                        printf("---------------------------------");
+                        printf("---------------------------------\n");
                         printf("Enter the number of the option: ");
                         usr_input = -1;
                         scanf("%d", &usr_input);
+                        while ((c = getchar()) != '\n' && c != EOF) {};
 
                         switch (usr_input)
                         {
@@ -83,14 +85,14 @@ int main()
                             break;
 
                         case 2:
-                            printf("---------------------------------");
+                            printf("---------------------------------\n");
                             printf("1 - Update menu\n"
                                 "2 - Update weight\n"
                                 "3 - Update height\n"
                                 "4 - Update gender\n"
                                 "5 - Update login\n"
                                 "6 - Update password\n");
-                            printf("---------------------------------");
+                            printf("---------------------------------\n");
                             printf("Enter the number of the option (enter a non-number to exit): ");
 
                             if (scanf("%d", &usr_input) == 0)
@@ -99,6 +101,7 @@ int main()
                                 continue;
                             }
 
+                            while ((c = getchar()) != '\n' && c != EOF) {};
                             result = update_client(db, usr_id, usr_input);
                             print_result_prompt(result);
                             result = RESULT_SUCCESS;
@@ -148,6 +151,8 @@ int main()
                         usr_input = -1;
                         scanf("%d", &usr_input);
                         system("clear"); 
+                        while ((c = getchar()) != '\n' && c != EOF) {};
+
                         switch (usr_input)
                         {
                         case 1:
@@ -230,8 +235,7 @@ int main()
                             break;
                         }
 
-                        char c;
-                        while ((c = getchar()) != '\n' && c != EOF) {};
+                        //while ((c = getchar()) != '\n' && c != EOF) {};
                     } while (result != RESULT_USER_EXIT);
                 }
             }
