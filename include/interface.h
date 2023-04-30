@@ -21,21 +21,21 @@ int disp_client(sqlite3* db, int client_id);
 
 int update_client(sqlite3* db, int id, int what_to_update);
 
-int update_login(sqlite3* db, char* target);
+int update_login(sqlite3* db, char** target);
 
-int update_password(sqlite3* db, char* target);
+int update_password(char** target);
 
-int update_weight(sqlite3* db, int* target);
+int update_weight(float** target);
 
-int update_height(sqlite3* db, int* target);
+int update_height(float** target);
 
-int update_gender(sqlite3* db, char* target);
+int update_gender(char** target);
 
 int delete_client(sqlite3* db, int client_id);
 
 int make_order(sqlite3* db, int client_id);
 
-int update_menu(sqlite3* db, int* target_menu_id, int client_id);
+int update_menu(sqlite3* db, int** target_menu_id, int client_id);
 
 int disp_all_clients(sqlite3* db);
 
