@@ -76,8 +76,8 @@ int registration(sqlite3* db)
 
 	float bmi = (*weight) / ((*height) * (*height));
 
-	sprintf(sql_query, "INSERT INTO Client VALUES ('%d', '%s', '%s', '%s', '%d',"
-		" '%d', '%d', '%d', '%f');", NULL, login, password, gender, *weight, *height, NULL, NULL,  bmi);
+	sprintf(sql_query, "INSERT INTO Client VALUES (NULL, '%s', '%s', '%s', '%d',"
+		" '%d', NULL, NULL, '%f');", login, password, gender, *weight, *height, bmi);
 
 	free(login);
 	free(password);
@@ -399,8 +399,8 @@ int make_order(sqlite3* db, int client_id)
 
 	sqlite3_finalize(stmt);
 	sqlite3_free(query);
-	query = sqlite3_mprintf("SELECT id, type, period, price FROM Meal_Plan WHERE min_bmi <= %f AND max_bmi > %f"
-		" AND id != %d", bmi, bmi, plan_cur_id);
+	query = sqlite3_mprintf("SELECT id, type, period, price FROM Meal_Plan WHERE "
+	"(min_bmi <= %f OR min_bmi = NULL) AND (max_bmi > %f OR max_bmi = NULL) AND id != %d", bmi, bmi, plan_cur_id);
 	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		printf("Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
