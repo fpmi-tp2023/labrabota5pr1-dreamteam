@@ -16,6 +16,7 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 //	regex_t regex;
 //	int reti = regcomp(&regex, "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 0);
 //	if (reti) {
+//		system("cls")
 //		printf("Error when checking the correct date format\n");
 //		return RESULT_ERROR_UNKNOWN;
 //	}
@@ -39,6 +40,7 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 //			printf("The date does not match the format YYYY-MM-DD\n");
 //		}
 //		else {
+//			system("cls");
 //			printf("Error when checking the correct date format\n");
 //			return RESULT_ERROR_UNKNOWN;
 //		}
@@ -51,11 +53,17 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 
 int disp_all_clients(sqlite3* db)
 {
+	char* err_msg = NULL;
 	const char* sql = "SELECT * FROM Client;";
 	printf("-------------------------------------\n");
+
 	if (sqlite3_exec(db, sql, callback, 0, 0) != SQLITE_OK) {
+		system("cls");
+		printf("Error when displaying clients: %s\n", err_msg);
+		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
 	}
+
 	return RESULT_SUCCESS;
 }
 
@@ -63,8 +71,10 @@ int disp_all_orders(sqlite3* db)
 {
 	char* err_msg = NULL;
 	const char* sql = "SELECT * FROM Orders;";
+	printf("-------------------------------------\n");
 
 	if (sqlite3_exec(db, sql, callback, 0, &err_msg) != SQLITE_OK) {
+		system("cls");
 		printf("Error when displaying orders: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -77,7 +87,6 @@ int delete_all(sqlite3* db)
 {
 	char* err_msg;
 	char answer;
-	while ((answer = getchar()) != '\n' && answer != EOF) {}
 	printf("Do you really want to delete all clients and orders? (y/n): ");
 	answer = getchar();
 	if (answer != 'y' && answer != 'Y') {
@@ -88,6 +97,7 @@ int delete_all(sqlite3* db)
 
 	int rc = sqlite3_exec(db, sql1, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
+		system("cls");
 		printf("Error when deleting clients: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -97,6 +107,7 @@ int delete_all(sqlite3* db)
 
 	rc = sqlite3_exec(db, sql2, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
+		system("cls");
 		printf("Error when deleting orders: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -128,6 +139,7 @@ int delete_all(sqlite3* db)
 //
 //	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 //	if (rc != SQLITE_OK) {
+//		system("cls");
 //		printf("SQL error: %s\n", zErrMsg);
 //		sqlite3_free(zErrMsg);
 //		return RESULT_ERROR_UNKNOWN;
@@ -140,9 +152,11 @@ int disp_most_popular_menu(sqlite3* db)
 {
 	char* err_msg = 0;
 	char* sql = "SELECT * FROM Menu WHERE id = (SELECT menu_id FROM Client GROUP BY menu_id ORDER BY COUNT(*) DESC LIMIT 3);";
+	printf("-------------------------------------\n");
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
+		system("cls");
 		printf("SQL error: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -155,10 +169,13 @@ int disp_sold_plans(sqlite3* db)
 {
 	char* err_msg = 0;
 	char* sql = "SELECT Meal_Plan.id, Meal_Plan.type, Meal_Plan.period, Meal_Plan.price, "
-		"COUNT(*), SUM(Meal_Plan.price) FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id GROUP BY Meal_Plan.id;";
+		"COUNT(*) as Amount_Sold, SUM(Meal_Plan.price) as Total_Sum FROM Orders JOIN Meal_Plan ON "
+		"Orders.plan_id = Meal_Plan.id GROUP BY Meal_Plan.id;";
+	printf("-------------------------------------\n");
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
+		system("cls");
 		printf("SQL error: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -173,6 +190,8 @@ int update_prices(sqlite3* db)
 	printf("Enter plan id to update or 0 to update all plans (enter a non-number to exit): ");
 	if (scanf("%d", &plan_id) == 0)
 	{
+		char c;
+		while ((c = getchar()) != '\n' && c != EOF) {};
 		return RESULT_USER_EXIT;
 	}
 
@@ -185,6 +204,7 @@ int update_prices(sqlite3* db)
 		rc = sqlite3_exec(db, query, callback, 0, &err_msg);
 
 		if (rc != SQLITE_OK) {
+			system("cls");
 			printf("Meal_Plan not found.\n");
 			return RESULT_ERROR_UNKNOWN;
 		}
@@ -198,6 +218,8 @@ int update_prices(sqlite3* db)
 			" (enter a non-integer to exit): ");
 		if (scanf("%d", &percent) == 0)
 		{
+			char c;
+			while ((c = getchar()) != '\n' && c != EOF) {};
 			return RESULT_USER_EXIT;
 		}
 		if (percent < -100 || percent > 100)
@@ -219,6 +241,7 @@ int update_prices(sqlite3* db)
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
+		system("cls");
 		printf("Error when trying to update prices: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -241,6 +264,7 @@ int update_prices(sqlite3* db)
 //	sprintf(sql, "SELECT * FROM Orders WHERE date = '%s'", date);
 //	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 //	if (rc != SQLITE_OK) {
+//		system("cls")
 //		printf("SQL error: %s\n", err_msg);
 //		sqlite3_free(err_msg);
 //		return RESULT_ERROR_UNKNOWN;

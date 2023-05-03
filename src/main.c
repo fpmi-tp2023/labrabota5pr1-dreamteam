@@ -31,10 +31,16 @@ int main()
     int result = RESULT_SUCCESS;
     char c;
 
+    system("cls");
+    printf("---------------------------------\n");
+    printf("%*s\n", 20, "Welcome!");
+
     do
     {
+        printf("---------------------------------\n");
         printf("1 - Login\n"
             "2 - Register\n");
+        printf("---------------------------------\n");
         printf("Enter the number of the option (enter a non-number to exit): ");
 
         if (scanf("%d", &usr_input) == 0)
@@ -43,6 +49,7 @@ int main()
             continue;
         }
 
+        system("cls");
         getchar();
 
         switch (usr_input)
@@ -51,6 +58,7 @@ int main()
 
         case 1:
             result = authorization(db, &usr_id);
+            system("cls");
 
             if (result == RESULT_SUCCESS)
             {
@@ -74,6 +82,7 @@ int main()
                         printf("Enter the number of the option: ");
                         usr_input = -1;
                         scanf("%d", &usr_input);
+                        printf("---------------------------------\n");
                         while ((c = getchar()) != '\n' && c != EOF) {};
 
                         switch (usr_input)
@@ -85,7 +94,6 @@ int main()
                             break;
 
                         case 2:
-                            printf("---------------------------------\n");
                             printf("1 - Update menu\n"
                                 "2 - Update weight\n"
                                 "3 - Update height\n"
@@ -136,7 +144,6 @@ int main()
                 {
                     do
                     {
-                        system("clear"); 
                         printf("---------------ADMIN----------------\n");
                         printf("1 - Display all clients\n"
                             "2 - Display all orders\n"
@@ -151,88 +158,99 @@ int main()
                         printf("Enter the number of the option: ");
                         usr_input = -1;
                         scanf("%d", &usr_input);
-                        system("clear"); 
+                        //system("clear"); 
+                        system("cls");
                         while ((c = getchar()) != '\n' && c != EOF) {};
 
                         switch (usr_input)
                         {
                         case 1:
-                            system("clear");
                             result = disp_all_clients(db);
-                            print_result_prompt(result);
                             printf("Press enter to continue\n");
-                            getchar(); 
-                            
+                            getchar();
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 2:
-                            system("clear");
                             result = disp_all_orders(db);
-                            print_result_prompt(result);
                             printf("Press enter to continue\n");
-                            getchar(); 
+                            getchar();
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 3:
-                            system("clear");
                             //result = disp_money_period(db);
-                            //print_result_prompt(result);
-                            result = RESULT_SUCCESS;
-                            printf("Press enter to continue\n");
-                            getchar(); 
+                            if (result != RESULT_USER_EXIT)
+                            {
+                                printf("Press enter to continue\n");
+                                getchar();
+                            }
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 4:
-                            system("clear");
                             result = disp_most_popular_menu(db);
-                            print_result_prompt(result);
                             printf("Press enter to continue\n");
-                            getchar(); 
+                            getchar();
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 5:
-                            system("clear");
                             result = disp_sold_plans(db);
-                            print_result_prompt(result);
                             printf("Press enter to continue\n");
                             getchar(); 
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 6:
-                            system("clear");
                             //result = disp_orders_by_date(db);
-                            //print_result_prompt(result);
-                            printf("Press enter to continue\n");
-                            getchar(); 
+                            if (result != RESULT_USER_EXIT)
+                            {
+                                printf("Press enter to continue\n");
+                                getchar();
+                            }
+                            system("cls");
+                            print_result_prompt(result);
                             result = RESULT_SUCCESS;
                             break;
 
                         case 7:
-                            system("clear");
                             result = update_prices(db);
+
+                            if (result != RESULT_USER_EXIT)
+                            {
+                                printf("Press enter to continue\n");
+                                getchar();
+                            }
+
+                            system("cls");
                             print_result_prompt(result);
-                            printf("Press enter to continue\n");
-                            getchar(); 
                             result = RESULT_SUCCESS;
                             break;
                             
                         case 8:
-                            system("clear");
                             result = delete_all(db);
+                            system("cls");
                             print_result_prompt(result);
-                            printf("Press enter to continue\n");
-                            getchar(); 
                             result = RESULT_SUCCESS;
                             break;
 
                         case 9:
-                            system("clear");
                             result = RESULT_USER_EXIT;
+                            system("cls");
                             break;
 
                         default:
                             printf("Incorrect number. Try again\n");
                             result = RESULT_ERROR_UNKNOWN;
+                            printf("Press enter to continue\n");
+                            getchar(); 
+                            system("cls");
                             break;
                         }
 
@@ -246,6 +264,7 @@ int main()
 
         case 2:
             result = registration(db);
+            system("cls");
             print_result_prompt(result);
             result = RESULT_SUCCESS;
             break;
@@ -253,6 +272,8 @@ int main()
         default:
             printf("Incorrect number. Try again\n");
             result = RESULT_ERROR_UNKNOWN;
+            getchar(); 
+            system("cls");
             break;
         }
     } while (result != RESULT_USER_EXIT);

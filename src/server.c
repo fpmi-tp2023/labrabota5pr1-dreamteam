@@ -62,22 +62,22 @@ int registration(sqlite3* db)
 		return RESULT_USER_EXIT;
 	}
 
-	float* weight = 0;
+	float weight = 0;
 	if (update_weight(&weight) == RESULT_USER_EXIT)
 	{
 		return RESULT_USER_EXIT;
 	}
 
-	float* height = 0;
+	float height = 0;
 	if (update_height(&height) == RESULT_USER_EXIT)
 	{
 		return RESULT_USER_EXIT;
 	}
 
-	float bmi = (*weight) / ((*height) * (*height));
+	float bmi = weight / (height * height);
 
-	sprintf(sql_query, "INSERT INTO Client VALUES (NULL, '%s', '%s', '%s', '%d',"
-		" '%d', NULL, NULL, '%f');", login, password, gender, *weight, *height, bmi);
+	sprintf(sql_query, "INSERT INTO Client VALUES (NULL, '%s', '%s', '%s', '%f',"
+		" '%f', NULL, NULL, '%f');", login, password, gender, weight, height, bmi);
 
 	free(login);
 	free(password);
@@ -142,7 +142,9 @@ int authorization(sqlite3* db, int* target_client_id)
 			printf("Error when trying to log in to the account: %s\n", err_msg);
 		}
 		if (client_id == -1) {
+			printf("---------------------------------\n");
 			printf("Incorrect login or password.\n");
+			printf("---------------------------------\n");
 		}
 	} while (rc != SQLITE_OK || client_id == -1);
 
@@ -241,7 +243,7 @@ int disp_client(sqlite3* db, int id)
 			rc = sqlite3_step(stmt);
 			if (rc != SQLITE_ROW)
 			{
-				printf("It is recommended that you change your meal plan\n");
+				printf("*It is recommended that you change your meal plan\n");
 			}
 		}
 	}
@@ -257,26 +259,27 @@ int disp_client(sqlite3* db, int id)
 
 int update_client(sqlite3* db, int id, int what_to_update)
 {
-	void* target = NULL;
+	char* target_str = NULL;
+	float target_float;
+	int target_int;
 	char* query;
 	char* err_msg = NULL;
 	int rc;
 	switch (what_to_update)
 	{
 	case (1):
-		if (update_menu(db, (int**)&target, id) == RESULT_USER_EXIT)
+		if (update_menu(db, &target_int, id) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
-		query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", *((int*)target), id);
+		query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", target_int, id);
 		break;
 	case (2):
-		if (update_weight((float**)&target) == RESULT_USER_EXIT)
+		if (update_weight(&target_float) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
 		float height = -1;
-		float target_weight = *((float*)target);
 		query = sqlite3_mprintf("SELECT height FROM Client WHERE id = %d", id);
 		rc = sqlite3_exec(db, query, callback_height, &height, &err_msg);
 		if (rc != SQLITE_OK || height == -1) {
@@ -287,15 +290,14 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		}
 		sqlite3_free(query);
 		query = sqlite3_mprintf("UPDATE Client SET weight = '%f', bmi = '%f' WHERE id = %d",
-			target_weight, target_weight / (height * height), id);
+			target_float, target_float / (height * height), id);
 		break;
 	case (3):
-		if (update_height((float**)&target) == RESULT_USER_EXIT)
+		if (update_height(&target_float) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
 		float weight = -1;
-		float target_height = *((float*)target);
 		query = sqlite3_mprintf("SELECT weight FROM Client WHERE id = %d", id);
 		rc = sqlite3_exec(db, query, callback_weight, &weight, &err_msg);
 		if (rc != SQLITE_OK || weight == -1) {
@@ -306,31 +308,31 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		}
 		sqlite3_free(query);
 		query = sqlite3_mprintf("UPDATE Client SET height = '%f', bmi = '%f' WHERE id = %d",
-			target_height, weight / (target_height * target_height), id);
+			target_float, weight / (target_float * target_float), id);
 		break;
 	case (4):
-		if (update_gender((char**)&target) == RESULT_USER_EXIT)
+		if (update_gender(&target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
-		query = sqlite3_mprintf("UPDATE Client SET gender = '%s' WHERE id = %d", (char*)target, id);
-		free(target);
+		query = sqlite3_mprintf("UPDATE Client SET gender = '%s' WHERE id = %d", target_str, id);
+		free(target_str);
 		break;
 	case (5):
-		if (update_login(db, (char**)&target) == RESULT_USER_EXIT)
+		if (update_login(db, &target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
-		query = sqlite3_mprintf("UPDATE Client SET login = '%s' WHERE id = %d", (char*)target, id);
-		free(target);
+		query = sqlite3_mprintf("UPDATE Client SET login = '%s' WHERE id = %d", target_str, id);
+		free(target_str);
 		break;
 	case (6):
-		if (update_password((char**)&target) == RESULT_USER_EXIT)
+		if (update_password(&target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
-		query = sqlite3_mprintf("UPDATE Client SET password = '%s' WHERE id = %d", (char*)target, id);
-		free(target);
+		query = sqlite3_mprintf("UPDATE Client SET password = '%s' WHERE id = %d", target_str, id);
+		free(target_str);
 		break;
 	default:
 		printf("Option not found.\n");
@@ -448,7 +450,7 @@ int make_order(sqlite3* db, int client_id)
 	sqlite3_finalize(stmt);
 	sqlite3_free(query);
 
-	query = sqlite3_mprintf("UPDATE Client SET plan_id = %d", usr_choice);
+	query = sqlite3_mprintf("UPDATE Client SET plan_id = %d, menu_id = NULL", usr_choice);
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
@@ -473,7 +475,7 @@ int make_order(sqlite3* db, int client_id)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	int* menu_id = 0;
+	int menu_id = 0;
 	if (update_menu(db, &menu_id, client_id) == RESULT_USER_EXIT)
 	{
 		return RESULT_USER_EXIT;
@@ -481,7 +483,7 @@ int make_order(sqlite3* db, int client_id)
 
 	sqlite3_free(query);
 	query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", 
-							*menu_id, client_id);
+							menu_id, client_id);
 
 	rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
 	if (rc != SQLITE_OK) {
@@ -496,7 +498,7 @@ int make_order(sqlite3* db, int client_id)
 	return RESULT_SUCCESS;
 }
 
-int update_menu(sqlite3* db, int** target_menu_id, int client_id)
+int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 {
 	char* query;
 	char* err_msg = NULL;
@@ -546,18 +548,17 @@ int update_menu(sqlite3* db, int** target_menu_id, int client_id)
 			printf("------------------------------------------\n");
 		}
 		
-		int usr_choice;
 		int found = 0;
 		do
 		{
 			printf("Enter the ID of the menu you prefer (enter a non-number to exit): ");
-			if (scanf("%d", &usr_choice) == 0)
+			if (scanf("%d", target_menu_id) == 0)
 			{
 				return RESULT_USER_EXIT;
 			}
 			for (int i = 0; i < max_menus_amount && menus_id[i] != 0; i++)
 			{
-				if (usr_choice == menus_id[i])
+				if (*target_menu_id == menus_id[i])
 				{
 					found = 1;
 					break;
@@ -569,8 +570,6 @@ int update_menu(sqlite3* db, int** target_menu_id, int client_id)
 			}
 		} while (found == 0);
 
-		
-		*target_menu_id = &usr_choice;
 		free(menus_id);
 	}
 	else {
@@ -662,43 +661,38 @@ int update_gender(char** target)
 	return RESULT_SUCCESS;
 }
 
-int update_weight(float** target)
+int update_weight(float* target)
 {
-	float weight;
 	do
 	{
 		printf("Enter your weight in kilograms (enter a non-number to exit): ");
-		if (scanf("%f", &weight) == 0)
+		if (scanf("%f", target) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
-		if (weight <= 0)
+		if (*target <= 0)
 		{
 			printf("Incorrect number. Try again\n");
 		}
-	} while (weight <= 0);
+	} while (*target <= 0);
 
-	
-	*target = &weight;
 	return RESULT_SUCCESS;
 }
 
-int update_height(float** target)
+int update_height(float* target)
 {
-	float height;
 	do
 	{
 		printf("Enter your height in meteres (enter a non-number to exit): ");
-		if (scanf("%f", &height) == 0)
+		if (scanf("%f", target) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
-		if (height <= 0)
+		if (*target <= 0)
 		{
 			printf("Incorrect number. Try again\n");
 		}
-	} while (height <= 0);
+	} while (*target <= 0);
 
-	*target = &height;
 	return RESULT_SUCCESS;
 }
