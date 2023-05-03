@@ -129,6 +129,7 @@ int main()
                             result = RESULT_ERROR_UNKNOWN;
                             break;
                         }
+                        while ((c = getchar()) != '\n' && c != EOF) {};
                     } while (result != RESULT_USER_EXIT);
                 }
                 else

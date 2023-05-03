@@ -174,8 +174,8 @@ int disp_client(sqlite3* db, int id)
 	if (rc == SQLITE_ROW) {
 		printf("Hello, %s\n", sqlite3_column_text(stmt, 0));
 		printf("Gender: %s\n", sqlite3_column_text(stmt, 1));
-		printf("Current weight: %.2f\n", sqlite3_column_double(stmt, 2));
-		printf("Current height: %.2f\n", sqlite3_column_double(stmt, 3));
+		printf("Current weight: %.2f kg\n", sqlite3_column_double(stmt, 2));
+		printf("Current height: %.2f m\n", sqlite3_column_double(stmt, 3));
 		printf("Current BMI: %.3f\n", sqlite3_column_double(stmt, 4));
 		int plan_id = sqlite3_column_int(stmt, 5);
 		if (plan_id == 0)
@@ -190,7 +190,7 @@ int disp_client(sqlite3* db, int id)
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
 
-			query = sqlite3_mprintf("SELECT type, period FROM Meal_Plan WHERE p.id = %d", plan_id);		
+			query = sqlite3_mprintf("SELECT type, period FROM Meal_Plan WHERE id = %d", plan_id);		
 			int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc != SQLITE_OK) {
 				printf("Error when trying to display meal plan information: %s\n", sqlite3_errmsg(db));
@@ -205,8 +205,8 @@ int disp_client(sqlite3* db, int id)
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
 
-			query = sqlite3_mprintf("SELECT m.breakfast, m.lunch, m.dinner, m.calories, "
-				"m.proteins, m.fats, m.carbs from Menu WHERE id = %i", menu_id);
+			query = sqlite3_mprintf("SELECT breakfast, lunch, dinner, calories, "
+				"proteins, fats, carbs from Menu WHERE id = %i", menu_id);
 			rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc != SQLITE_OK) {
 				printf("Error when trying to display menu information: %s\n", sqlite3_errmsg(db));
@@ -216,12 +216,12 @@ int disp_client(sqlite3* db, int id)
 			if (rc == SQLITE_ROW)
 			{
 				printf("Today's menu:\n");
-				printf("Breakfast - %s\n", sqlite3_column_text(stmt, 2));
-				printf("Lunch - %s\n", sqlite3_column_text(stmt, 3));
-				printf("Dinner - %s\n", sqlite3_column_text(stmt, 4));
-				printf("%f cal., %f pr., %f fat., %f carb.\n",
-					sqlite3_column_double(stmt, 5), sqlite3_column_double(stmt, 6), 
-					sqlite3_column_double(stmt, 7), sqlite3_column_double(stmt, 8));
+				printf("Breakfast - %s\n", sqlite3_column_text(stmt, 0));
+				printf("Lunch - %s\n", sqlite3_column_text(stmt, 1));
+				printf("Dinner - %s\n", sqlite3_column_text(stmt, 2));
+				printf("%.3f cal., %.3f pr., %.3f fat., %.3f carb.\n",
+					sqlite3_column_double(stmt, 3), sqlite3_column_double(stmt, 4), 
+					sqlite3_column_double(stmt, 5), sqlite3_column_double(stmt, 6));
 			}
 
 			sqlite3_free(query);
@@ -241,7 +241,7 @@ int disp_client(sqlite3* db, int id)
 			rc = sqlite3_step(stmt);
 			if (rc != SQLITE_ROW)
 			{
-				printf("It is recommended that you change your meal plan");
+				printf("It is recommended that you change your meal plan\n");
 			}
 		}
 	}
@@ -276,6 +276,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 			return RESULT_USER_EXIT;
 		}
 		float height = -1;
+		float target_weight = *((float*)target);
 		query = sqlite3_mprintf("SELECT height FROM Client WHERE id = %d", id);
 		rc = sqlite3_exec(db, query, callback_height, &height, &err_msg);
 		if (rc != SQLITE_OK || height == -1) {
@@ -286,7 +287,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		}
 		sqlite3_free(query);
 		query = sqlite3_mprintf("UPDATE Client SET weight = '%f', bmi = '%f' WHERE id = %d",
-			*((float*)target), *((float*)target) / (height * height), id);
+			target_weight, target_weight / (height * height), id);
 		break;
 	case (3):
 		if (update_height((float**)&target) == RESULT_USER_EXIT)
@@ -294,6 +295,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 			return RESULT_USER_EXIT;
 		}
 		float weight = -1;
+		float target_height = *((float*)target);
 		query = sqlite3_mprintf("SELECT weight FROM Client WHERE id = %d", id);
 		rc = sqlite3_exec(db, query, callback_weight, &weight, &err_msg);
 		if (rc != SQLITE_OK || weight == -1) {
@@ -304,7 +306,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		}
 		sqlite3_free(query);
 		query = sqlite3_mprintf("UPDATE Client SET height = '%f', bmi = '%f' WHERE id = %d",
-			*((float*)target), weight / ((*((float*)target)) * (*((float*)target))), id);
+			target_height, weight / (target_height * target_height), id);
 		break;
 	case (4):
 		if (update_gender((char**)&target) == RESULT_USER_EXIT)
@@ -446,11 +448,21 @@ int make_order(sqlite3* db, int client_id)
 	sqlite3_finalize(stmt);
 	sqlite3_free(query);
 
+	query = sqlite3_mprintf("UPDATE Client SET plan_id = %d", usr_choice);
+	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
+
+	if (rc != SQLITE_OK) {
+		printf("Failed to update plan: %s\n", err_msg);
+		sqlite3_free(err_msg);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
 	time_t now = time(NULL);
 	char datestr[20];
 	strftime(datestr, sizeof(datestr), "%Y-%m-%d", localtime(&now));
 
-	query = sqlite3_mprintf("INSERT INTO Orders VALUES('%d', '%s', '%d'); ",
+	query = sqlite3_mprintf("INSERT INTO Orders VALUES(NULL, '%d', '%s', '%d'); ",
 		client_id, datestr, usr_choice);
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
@@ -468,8 +480,8 @@ int make_order(sqlite3* db, int client_id)
 	}
 
 	sqlite3_free(query);
-	query = sqlite3_mprintf("UPDATE Client SET plan_id = '%d', menu_id = '%d' WHERE id = %d", 
-		usr_choice, *menu_id, client_id);
+	query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", 
+							*menu_id, client_id);
 
 	rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
 	if (rc != SQLITE_OK) {
@@ -506,7 +518,7 @@ int update_menu(sqlite3* db, int** target_menu_id, int client_id)
 		sqlite3_free(query);
 		sqlite3_finalize(stmt);
 		query = sqlite3_mprintf("SELECT m.id, m.breakfast, m.lunch, m.dinner, m.calories, m.proteins, "
-			"m.fats, m.carbs FROM Menu m JOIN Meal_Plan p on m.plan_type = p.type WHERE p.id = %d AND id != %d", 
+			"m.fats, m.carbs FROM Menu m JOIN Meal_Plan p on m.plan_type = p.type WHERE p.id = %d AND m.id != %d", 
 			plan_id, menu_id);
 		rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 
@@ -525,12 +537,12 @@ int update_menu(sqlite3* db, int** target_menu_id, int client_id)
 		{
 			menus_id[i] = sqlite3_column_int(stmt, 0);
 			printf("ID - %d\n", menus_id[i]);
-			printf("Breakfast - %s\n", sqlite3_column_text(stmt, 2));
-			printf("Lunch - %s\n", sqlite3_column_text(stmt, 3));
-			printf("Dinner - %s\n", sqlite3_column_text(stmt, 4));
-			printf("%f cal., %f pr., %f fat., %f carb.\n",
-				sqlite3_column_double(stmt, 5), sqlite3_column_double(stmt, 6),
-				sqlite3_column_double(stmt, 7), sqlite3_column_double(stmt, 8));
+			printf("Breakfast - %s\n", sqlite3_column_text(stmt, 1));
+			printf("Lunch - %s\n", sqlite3_column_text(stmt, 2));
+			printf("Dinner - %s\n", sqlite3_column_text(stmt, 3));
+			printf("%.3f cal., %.3f pr., %.3f fat., %.3f carb.\n",
+				sqlite3_column_double(stmt, 4), sqlite3_column_double(stmt, 5),
+				sqlite3_column_double(stmt, 6), sqlite3_column_double(stmt, 7));
 			printf("------------------------------------------\n");
 		}
 		
