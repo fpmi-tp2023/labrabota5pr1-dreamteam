@@ -74,8 +74,8 @@ int main()
                         }
 
                         printf("---------------------------------\n");
-                        printf("1 - Order plan\n"
-                            "2 - Update info...\n"
+                        printf("1 - Display today's menu\n"
+                            "2 - Update...\n"
                             "3 - Delete account\n"
                             "4 - Log out\n");
                         printf("---------------------------------\n");
@@ -88,18 +88,19 @@ int main()
                         switch (usr_input)
                         {
                         case 1:
-                            result = make_order(db, usr_id);
+                            //result = update_plan(db, usr_id);
                             print_result_prompt(result);
                             result = RESULT_SUCCESS;
                             break;
 
                         case 2:
-                            printf("1 - Update menu\n"
-                                "2 - Update weight\n"
-                                "3 - Update height\n"
-                                "4 - Update gender\n"
-                                "5 - Update login\n"
-                                "6 - Update password\n");
+                            printf("1 - Plan\n"
+                                "2 - Menu\n"
+                                "3 - Weight\n"
+                                "4 - Height\n"
+                                "5 - Gender\n"
+                                "6 - Login\n"
+                                "7 - Password\n");
                             printf("---------------------------------\n");
                             printf("Enter the number of the option (enter a non-number to exit): ");
 

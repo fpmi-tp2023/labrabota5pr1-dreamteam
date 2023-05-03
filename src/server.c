@@ -232,7 +232,7 @@ int disp_client(sqlite3* db, int id)
 			query = sqlite3_mprintf("SELECT * FROM Meal_Plan WHERE id=? AND ? BETWEEN min_bmi AND max_bmi");
 			rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc == SQLITE_OK) {
-				sqlite3_bind_int(stmt, 1, id);
+				sqlite3_bind_int(stmt, 1, plan_id);
 				sqlite3_bind_double(stmt, 2, bmi);
 			}
 			else {
@@ -268,13 +268,20 @@ int update_client(sqlite3* db, int id, int what_to_update)
 	switch (what_to_update)
 	{
 	case (1):
+		if (update_plan(db, &target_int, id) == RESULT_USER_EXIT)
+		{
+			return RESULT_USER_EXIT;
+		}
+		query = sqlite3_mprintf("UPDATE Client SET plan_id = %d, menu_id = NULL WHERE id = %d", target_int, id);
+		break;
+	case (2):
 		if (update_menu(db, &target_int, id) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
 		}
 		query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", target_int, id);
 		break;
-	case (2):
+	case (3):
 		if (update_weight(&target_float) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
@@ -292,7 +299,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		query = sqlite3_mprintf("UPDATE Client SET weight = '%f', bmi = '%f' WHERE id = %d",
 			target_float, target_float / (height * height), id);
 		break;
-	case (3):
+	case (4):
 		if (update_height(&target_float) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
@@ -310,7 +317,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		query = sqlite3_mprintf("UPDATE Client SET height = '%f', bmi = '%f' WHERE id = %d",
 			target_float, weight / (target_float * target_float), id);
 		break;
-	case (4):
+	case (5):
 		if (update_gender(&target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
@@ -318,7 +325,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		query = sqlite3_mprintf("UPDATE Client SET gender = '%s' WHERE id = %d", target_str, id);
 		free(target_str);
 		break;
-	case (5):
+	case (6):
 		if (update_login(db, &target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
@@ -326,7 +333,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		query = sqlite3_mprintf("UPDATE Client SET login = '%s' WHERE id = %d", target_str, id);
 		free(target_str);
 		break;
-	case (6):
+	case (7):
 		if (update_password(&target_str) == RESULT_USER_EXIT)
 		{
 			return RESULT_USER_EXIT;
@@ -375,7 +382,7 @@ int delete_client(sqlite3* db, int id)
 	return RESULT_SUCCESS;
 }
 
-int make_order(sqlite3* db, int client_id)
+int update_plan(sqlite3* db, int* target_plan_id, int client_id)
 {
 	char* query;
 	char* err_msg = NULL;
@@ -403,8 +410,9 @@ int make_order(sqlite3* db, int client_id)
 
 	sqlite3_finalize(stmt);
 	sqlite3_free(query);
-	query = sqlite3_mprintf("SELECT id, type, period, price FROM Meal_Plan WHERE "
-	"(min_bmi <= %f OR min_bmi = NULL) AND (max_bmi > %f OR max_bmi = NULL) AND id != %d", bmi, bmi, plan_cur_id);
+
+	query = sqlite3_mprintf("SELECT DISTINCT type FROM Meal_Plan WHERE "
+	"(min_bmi <= %f OR min_bmi = NULL) AND (max_bmi > %f OR max_bmi = NULL)", bmi, bmi);
 	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		printf("Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
@@ -413,29 +421,81 @@ int make_order(sqlite3* db, int client_id)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	int max_periods_amount = 3;
-	int* plans_id = (int*)calloc(max_periods_amount, sizeof(int));
+	sqlite3_step(stmt);
+	sqlite3_free(query);
+
+	int amount_plan_types = 3;
+	char* plan_types[] = {"low-calorie","moderate","high-calorie"}; 
+	int usr_input;
+
+	do
+	{
+		printf("---------------------------------\n");
+        for(int i = 0; i < amount_plan_types; i++)
+		{
+			printf("%d - %s", i+1, plan_types[i]);
+			if (strcmp(plan_types[i],sqlite3_column_text(stmt,0)) == 0)
+			{
+				printf("\t<- *Recommended*");
+			}
+			printf("\n");
+		}
+        printf("---------------------------------\n");
+        printf("Enter the number of the option (enter a non-number to exit): ");
+
+		if (scanf("%d", &usr_input) == 0)
+		{
+			char c;
+			while ((c = getchar()) != '\n' && c != EOF) {};
+			sqlite3_finalize(stmt);
+			return RESULT_USER_EXIT;
+		}
+		
+		if (usr_input < 0 || usr_input > amount_plan_types)
+		{
+			printf("Incorrect number. Try again\n");
+		}
+		else
+		{
+			query = sqlite3_mprintf("SELECT id, period, price FROM Meal_Plan WHERE type = '%s' AND id != %d", 
+				plan_types[usr_input-1], plan_cur_id);
+		}
+	}while(usr_input < 0 || usr_input > amount_plan_types);
+
+	sqlite3_finalize(stmt);
+	rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		printf("Error when trying to display the proposed plans: %s\n", sqlite3_errmsg(db));
+		sqlite3_finalize(stmt);
+		sqlite3_free(query);
+		return RESULT_ERROR_UNKNOWN;
+	}
+
+	int amount_periods_max = 3;
+	int* plans_id = (int*)calloc(amount_periods_max, sizeof(int));
 	printf("Available meal plans for your BMI:\n");
-	printf("ID\tType\tPeriod(mon.)\tPrice\n");
+	printf("ID\tPeriod(mon.)\tPrice\n");
 
 	for (int i = 0; sqlite3_step(stmt) == SQLITE_ROW; i++) {
 		plans_id[i] = sqlite3_column_int(stmt, 0);
-		printf("%d\t%s\t%d\t$%.2f\n", plans_id[i], sqlite3_column_text(stmt, 1),
-			sqlite3_column_int(stmt, 2), sqlite3_column_double(stmt, 3));
+		printf("%d\t%d\t$%.2f\n", plans_id[i], sqlite3_column_int(stmt, 1),
+			sqlite3_column_double(stmt, 2));
 	}
 
-	int usr_choice;
+	sqlite3_finalize(stmt);
+	sqlite3_free(query);
+
 	int found = 0;
 	do
 	{
 		printf("Enter the ID of the meal plan you want to order (enter a non-number to exit): ");
-		if (scanf("%d", &usr_choice) == 0)
+		if (scanf("%d", target_plan_id) == 0)
 		{
 			return RESULT_USER_EXIT;
 		}
-		for (int i = 0; i < max_periods_amount && plans_id[i] != 0; i++)
+		for (int i = 0; i < amount_periods_max && plans_id[i] != 0; i++)
 		{
-			if (usr_choice == plans_id[i])
+			if (*target_plan_id == plans_id[i])
 			{
 				found = 1;
 				break;
@@ -447,25 +507,22 @@ int make_order(sqlite3* db, int client_id)
 		}
 	} while (found == 0);
 
-	sqlite3_finalize(stmt);
-	sqlite3_free(query);
+	// query = sqlite3_mprintf("UPDATE Client SET plan_id = %d, menu_id = NULL", usr_input);
+	// rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
-	query = sqlite3_mprintf("UPDATE Client SET plan_id = %d, menu_id = NULL", usr_choice);
-	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
-
-	if (rc != SQLITE_OK) {
-		printf("Failed to update plan: %s\n", err_msg);
-		sqlite3_free(err_msg);
-		sqlite3_free(query);
-		return RESULT_ERROR_UNKNOWN;
-	}
+	// if (rc != SQLITE_OK) {
+	// 	printf("Failed to update plan: %s\n", err_msg);
+	// 	sqlite3_free(err_msg);
+	// 	sqlite3_free(query);
+	// 	return RESULT_ERROR_UNKNOWN;
+	// }
 
 	time_t now = time(NULL);
 	char datestr[20];
 	strftime(datestr, sizeof(datestr), "%Y-%m-%d", localtime(&now));
 
 	query = sqlite3_mprintf("INSERT INTO Orders VALUES(NULL, '%d', '%s', '%d'); ",
-		client_id, datestr, usr_choice);
+		client_id, datestr, *target_plan_id);
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
@@ -475,23 +532,23 @@ int make_order(sqlite3* db, int client_id)
 		return RESULT_ERROR_UNKNOWN;
 	}
 
-	int menu_id = 0;
-	if (update_menu(db, &menu_id, client_id) == RESULT_USER_EXIT)
-	{
-		return RESULT_USER_EXIT;
-	}
+	// int menu_id = 0;
+	// if (update_menu(db, &menu_id, client_id) == RESULT_USER_EXIT)
+	// {
+	// 	return RESULT_USER_EXIT;
+	// }
 
-	sqlite3_free(query);
-	query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", 
-							menu_id, client_id);
+	// sqlite3_free(query);
+	// query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", 
+	// 						menu_id, client_id);
 
-	rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
-	if (rc != SQLITE_OK) {
-		printf("Error when updating plan: %s\n", err_msg);
-		sqlite3_free(err_msg);
-		sqlite3_free(query);
-		return RESULT_ERROR_UNKNOWN;
-	}
+	// rc = sqlite3_exec(db, query, NULL, 0, &err_msg);
+	// if (rc != SQLITE_OK) {
+	// 	printf("Error when updating plan: %s\n", err_msg);
+	// 	sqlite3_free(err_msg);
+	// 	sqlite3_free(query);
+	// 	return RESULT_ERROR_UNKNOWN;
+	// }
 
 	free(plans_id);
 	sqlite3_free(query);

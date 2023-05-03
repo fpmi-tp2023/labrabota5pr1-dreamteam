@@ -33,7 +33,7 @@ int update_gender(char** target);
 
 int delete_client(sqlite3* db, int client_id);
 
-int make_order(sqlite3* db, int client_id);
+int update_plan(sqlite3* db, int* target_plan_id, int client_id);
 
 int update_menu(sqlite3* db, int* target_menu_id, int client_id);
 
