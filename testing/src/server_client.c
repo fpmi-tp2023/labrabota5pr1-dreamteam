@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "../include/interface.h"
+#include "interface.h"
 
 int callback_client_id(void* client_id, int argc, char** argv, char** column_name) {
 	for (int i = 0; i < argc; i++)
@@ -35,6 +35,14 @@ int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 		}
 	}
 	return 0;
+}
+
+void print_error_prompt(const char* error_message)
+{
+	system("cls");
+	printf(error_message);
+	printf("\nPress enter to continue...\n");
+    getchar();
 }
 
 int registration(sqlite3* db)
@@ -356,10 +364,7 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		free(target_str);
 		break;
 	default:
-		system("cls");
-		printf("Option not found.\n");
-		printf("Press enter to continue...\n");
-        getchar();
+		print_error_prompt("Option not found.");
 		return RESULT_ERROR_UNKNOWN;
 	}
 
@@ -568,9 +573,7 @@ int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 		int plan_id = sqlite3_column_int(stmt, 0);
 		if (plan_id == 0)
 		{
-			printf("Can't choose a menu: You don't have a meal plan yet\n");
-			printf("Press enter to continue...\n");
-        	getchar();
+			print_error_prompt("Can't choose a menu: You don't have a meal plan yet");
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
 			return RESULT_ERROR_UNKNOWN;
@@ -667,10 +670,7 @@ int update_login(sqlite3* db, char** target)
 
 		if (strcmp(login, ADMIN_LOGIN) == 0)
 		{
-			system("cls");
-			printf("A user with this login already exists.\n");
-			printf("Press enter to continue...\n");
-        	getchar();
+			print_error_prompt("A user with this login already exists.");
 			rc = SQLITE_ROW;
 			continue;
 		}
@@ -688,10 +688,7 @@ int update_login(sqlite3* db, char** target)
 		rc = sqlite3_step(stmt);
 
 		if (rc == SQLITE_ROW) {
-			system("cls");
-			printf("A user with this login already exists.\n");
-			printf("Press enter to continue...\n");
-        	getchar();
+			print_error_prompt("A user with this login already exists.\n");
 		}
 
 		sqlite3_finalize(stmt);
