@@ -66,6 +66,7 @@ int main()
                 {
                     do
                     {
+                        printf("---------------------------------\n");
                         result = disp_client(db, usr_id);
 
                         if (result == RESULT_ERROR_UNKNOWN)
@@ -82,18 +83,21 @@ int main()
                         printf("Enter the number of the option: ");
                         usr_input = -1;
                         scanf("%d", &usr_input);
-                        printf("---------------------------------\n");
+                        system("cls");
                         while ((c = getchar()) != '\n' && c != EOF) {};
 
                         switch (usr_input)
                         {
                         case 1:
-                            //result = update_plan(db, usr_id);
+                            result = disp_client_menu(db, usr_id);
+                            printf("Press enter to continue\n");
+                            getchar();
+                            system("cls");
                             print_result_prompt(result);
-                            result = RESULT_SUCCESS;
                             break;
 
                         case 2:
+                            printf("---------------------------------\n");
                             printf("1 - Plan\n"
                                 "2 - Menu\n"
                                 "3 - Weight\n"
@@ -106,19 +110,23 @@ int main()
 
                             if (scanf("%d", &usr_input) == 0)
                             {
+                                system("cls");
+                                while ((c = getchar()) != '\n' && c != EOF) {};
                                 result = RESULT_SUCCESS;
                                 continue;
                             }
 
+                            system("cls");
                             while ((c = getchar()) != '\n' && c != EOF) {};
                             result = update_client(db, usr_id, usr_input);
+                            system("cls");
                             print_result_prompt(result);
                             result = RESULT_SUCCESS;
                             break;
 
                         case 3:
                             result = delete_client(db, usr_id);
-                            print_result_prompt(result);
+                            system("cls");
 
                             if (result == RESULT_SUCCESS)
                             {
@@ -126,19 +134,22 @@ int main()
                                 continue;
                             }
 
+                            print_result_prompt(result);
                             result = RESULT_SUCCESS;
                             break;
 
                         case 4:
                             result = RESULT_USER_EXIT;
+                            system("cls");
                             break;
 
                         default:
+                            system("cls");
                             printf("Incorrect number. Try again\n");
                             result = RESULT_ERROR_UNKNOWN;
                             break;
                         }
-                        while ((c = getchar()) != '\n' && c != EOF) {};
+                        //while ((c = getchar()) != '\n' && c != EOF) {};
                     } while (result != RESULT_USER_EXIT);
                 }
                 else
@@ -167,10 +178,6 @@ int main()
                         {
                         case 1:
                             result = disp_all_clients(db);
-                            printf("Press enter to continue\n");
-                            getchar();
-                            system("cls");
-                            print_result_prompt(result);
                             break;
 
                         case 2:
@@ -247,11 +254,9 @@ int main()
                             break;
 
                         default:
-                            printf("Incorrect number. Try again\n");
-                            result = RESULT_ERROR_UNKNOWN;
-                            printf("Press enter to continue\n");
-                            getchar(); 
                             system("cls");
+                            printf("Incorrect number. Try again\n");
+                            result = RESULT_ERROR_UNKNOWN;                       
                             break;
                         }
 
