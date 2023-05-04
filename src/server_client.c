@@ -646,12 +646,13 @@ int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 
 int update_login(sqlite3* db, char** target)
 {
-	char* err_msg = NULL;
 	int rc;
-	char sql_query[200];
+	char* query = NULL;
 	char* login = (char*) malloc(100 * sizeof(char));
+	sqlite3_stmt* stmt;
 	do
 	{
+		system("cls");
 		memset(login, 0, 100);
 		printf("Enter your login (or press Enter to exit): ");
 		fgets(login, 100, stdin);
@@ -666,22 +667,37 @@ int update_login(sqlite3* db, char** target)
 
 		if (strcmp(login, ADMIN_LOGIN) == 0)
 		{
+			system("cls");
 			printf("A user with this login already exists.\n");
+			printf("Press enter to continue...\n");
+        	getchar();
+			rc = SQLITE_ROW;
+			continue;
 		}
 
-		sprintf(sql_query, "SELECT login FROM Client WHERE login = '%s';", login);
-		rc = sqlite3_exec(db, sql_query, 0, 0, &err_msg);
+		query = sqlite3_mprintf("SELECT login FROM Client WHERE login = '%s';", login);
+		rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+
+		if (rc != SQLITE_OK) {
+			printf("Error when trying to update login: %s\n", sqlite3_errmsg(db));
+			sqlite3_finalize(stmt);
+			sqlite3_free(query);
+			return RESULT_ERROR_UNKNOWN;
+		}
+
+		rc = sqlite3_step(stmt);
 
 		if (rc == SQLITE_ROW) {
+			system("cls");
 			printf("A user with this login already exists.\n");
+			printf("Press enter to continue...\n");
+        	getchar();
 		}
 
-	} while (rc == SQLITE_ROW);
+		sqlite3_finalize(stmt);
+		sqlite3_free(query);
 
-	if (err_msg != NULL)
-	{
-		sqlite3_free(err_msg);
-	}
+	} while (rc == SQLITE_ROW);
 
 	*target = login;
 	return RESULT_SUCCESS;
