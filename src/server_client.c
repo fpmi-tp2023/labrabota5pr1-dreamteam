@@ -207,28 +207,6 @@ int disp_client(sqlite3* db, int id)
 			sqlite3_free(query);
 			sqlite3_finalize(stmt);
 
-			// query = sqlite3_mprintf("SELECT breakfast, lunch, dinner, calories, "
-			// 	"proteins, fats, carbs from Menu WHERE id = %i", menu_id);
-			// rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-			// if (rc != SQLITE_OK) {
-			// 	printf("Error when trying to display menu information: %s\n", sqlite3_errmsg(db));
-			// 	return RESULT_ERROR_UNKNOWN;
-			// }
-			// rc = sqlite3_step(stmt);
-			// if (rc == SQLITE_ROW)
-			// {
-			// 	printf("Today's menu:\n");
-			// 	printf("Breakfast - %s\n", sqlite3_column_text(stmt, 0));
-			// 	printf("Lunch - %s\n", sqlite3_column_text(stmt, 1));
-			// 	printf("Dinner - %s\n", sqlite3_column_text(stmt, 2));
-			// 	printf("%.3f cal., %.3f pr., %.3f fat., %.3f carb.\n",
-			// 		sqlite3_column_double(stmt, 3), sqlite3_column_double(stmt, 4), 
-			// 		sqlite3_column_double(stmt, 5), sqlite3_column_double(stmt, 6));
-			// }
-
-			// sqlite3_free(query);
-			// sqlite3_finalize(stmt);
-
 			query = sqlite3_mprintf("SELECT * FROM Meal_Plan WHERE id=? AND ? BETWEEN min_bmi AND max_bmi");
 			rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 			if (rc == SQLITE_OK) {
@@ -283,7 +261,7 @@ int disp_client_menu(sqlite3* db, int client_id)
 	}
 	else
 	{
-		printf("No info...\n");
+		printf("No info... Update your menu first\n");
 	}
 
 	sqlite3_free(query);
@@ -310,9 +288,10 @@ int update_client(sqlite3* db, int id, int what_to_update)
 		query = sqlite3_mprintf("UPDATE Client SET plan_id = %d, menu_id = NULL WHERE id = %d", target_int, id);
 		break;
 	case (2):
-		if (update_menu(db, &target_int, id) == RESULT_USER_EXIT)
+		rc = update_menu(db, &target_int, id);
+		if (rc != RESULT_SUCCESS)
 		{
-			return RESULT_USER_EXIT;
+			return rc;
 		}
 		query = sqlite3_mprintf("UPDATE Client SET menu_id = '%d' WHERE id = %d", target_int, id);
 		break;
@@ -587,6 +566,15 @@ int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 	rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
 		int plan_id = sqlite3_column_int(stmt, 0);
+		if (plan_id == 0)
+		{
+			printf("Can't choose a menu: You don't have a meal plan yet\n");
+			printf("Press enter to continue...\n");
+        	getchar();
+			sqlite3_free(query);
+			sqlite3_finalize(stmt);
+			return RESULT_ERROR_UNKNOWN;
+		}
 		int menu_id = sqlite3_column_int(stmt, 1);
 		sqlite3_free(query);
 		sqlite3_finalize(stmt);
