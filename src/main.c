@@ -178,6 +178,10 @@ int main()
                         {
                         case 1:
                             result = disp_all_clients(db);
+                            printf("Press enter to continue\n");
+                            getchar();
+                            system("cls");
+                            print_result_prompt(result);
                             break;
 
                         case 2:
