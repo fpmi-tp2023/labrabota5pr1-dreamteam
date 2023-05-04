@@ -39,9 +39,7 @@ int update_plan(sqlite3* db, int* target_plan_id, int client_id);
 
 int update_menu(sqlite3* db, int* target_menu_id, int client_id);
 
-int disp_all_clients(sqlite3* db);
-
-int disp_all_orders(sqlite3* db);
+int display_all(sqlite3* db, int what_to_display);
 
 int delete_all(sqlite3* db);
 
@@ -54,5 +52,7 @@ int disp_sold_plans(sqlite3* db);
 int update_prices(sqlite3* db);
 
 int disp_orders_by_date(sqlite3* db);
+
+void print_error_prompt(const char* error_message);
 
 #endif //INTERFACE_H
