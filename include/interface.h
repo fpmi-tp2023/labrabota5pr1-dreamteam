@@ -19,6 +19,8 @@ int authorization(sqlite3* db, int* target_client_id);
 
 int disp_client(sqlite3* db, int client_id);
 
+int disp_client_menu(sqlite3* db, int client_id);
+
 int update_client(sqlite3* db, int id, int what_to_update);
 
 int update_login(sqlite3* db, char** target);
