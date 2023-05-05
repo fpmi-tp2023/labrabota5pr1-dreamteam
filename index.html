@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Healthy Nutrition Project - Dream Team</title>
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+
+    h1 {
+      font-size: 32px;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      margin-top: 0;
+      margin-bottom: 20px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    code {
+      font-family: monospace;
+      background-color: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    pre {
+      font-family: monospace;
+      background-color: #f5f5f5;
+      padding: 10px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    form {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    input[type="submit"] {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+
+  <body>
+    <h1>Healthy Nutrition Project - Dream Team</h1>
+    <h2>Description:</h2>
+    <p>
+      A food delivery company is implementing an app that will offer a daily
+      meal plan based on body mass index.The plan is selected for 1/3/6 months
+      (more is cheaper). Each plan has several menu options (~3). Each menu
+      option contains information about calories, protein/fat/carbohydrate
+      content.
+    </p>
+    <p>The server part has the information:</p>
+    <ul>
+      <li>about the plans: (example) low-calorie, moderate, high-calorie</li>
+      <li>
+        about the contents of the menu: the list of dishes, calories, etc.
+      </li>
+      <li>about the clints (further in the tables)</li>
+      <li>about the execution of orders</li>
+    </ul>
+    <p>The client has the information:</p>
+    <ul>
+      <li>personal data</li>
+      <li>data on your order</li>
+    </ul>
+    <h2>Tables:</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>meal plan</th>
+          <th>menu</th>
+          <th>customers</th>
+          <th>orders</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>id | type | period | price | menu number</td>
+          <td>id | breakfast| lunch| dinner</td>
+          <td>login | password | weight|height| gender | meal plan id</td>
+          <td>customer id | login | date | plan id | period | price</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>menu and meal plan are linked by id</p>
+    <p>We pull up the period and price from the plan by the plan id</p>
+    <p>
+      The function of client login by login and password (you can also register,
+      if you are not lazy)
+    </p>
+    <h2>Using select to issue the following information:</h2>
+    <ul>
+      <li>
+        For all orders: the amount of money received for the specified period
+        according to the menu that is in the greatest demand
+      </li>
+      <li>
+        For all orders: information about the number of plans sold and the
+        amount of money received (grouping by plans)
+      </li>
+    </ul>
+    <p>Provide data updates using insert, delete, update</p>
+    <p>Create a function to increase (decrease) the price for a certain %</p>
+    <p>
+      Create a function that displays information about all accepted orders on a
+      certain date
+    </p>
+    <p>
+      Create a function that allows you to change the meal plan and then
+      recalculate the cost
+    </p>
+    <h2>Installation:</h2>
+    <p>Execute Commands:</p>
+    <pre>
+		git clone git@github.com:fpmi-tp2023/labrabota5pr1-dreamteam.git
+		git pull
+	</pre
+    >
+    <p>Or download ZIP file</p>
+    <h2>Usage:</h2>
+    <p>Execute Commands:</p>
+    <pre>
+		make
+		bin/program
+	</pre
+    >
+    <h2>Contributing:</h2>
+    <p>The authors of the project:</p>
+    <ul>
+      <li>Maxim Emelyanovich - coder</li>
+      <li>Danila Tsatsuk - content maker</li>
+      <li>Yanchuk Bronislav - team leader / tester</li>
+      <li>Viktor Drobyshevsky - SQL Manager</li>
+    </ul>
+  </body>
+</html>
