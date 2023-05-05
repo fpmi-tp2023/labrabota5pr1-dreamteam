@@ -39,8 +39,8 @@ int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 
 void print_error_prompt(const char* error_message)
 {
-	system("cls");
-	printf(error_message);
+	system("clear");
+	printf("%s", error_message);
 	printf("\nPress enter to continue...\n");
     getchar();
 }
@@ -150,7 +150,7 @@ int authorization(sqlite3* db, int* target_client_id)
 			printf("Error when trying to log in to the account: %s\n", err_msg);
 		}
 		if (client_id == -1) {
-			system("cls");
+			system("clear");
 			printf("Incorrect login or password.\n");
 			printf("---------------------------------\n");
 		}
@@ -473,7 +473,7 @@ int update_plan(sqlite3* db, int* target_plan_id, int client_id)
 			return RESULT_USER_EXIT;
 		}
 		
-		system("cls");
+		system("clear");
 		if (usr_input < 0 || usr_input > amount_plan_types)
 		{
 			printf("Incorrect number. Try again\n");
@@ -515,7 +515,7 @@ int update_plan(sqlite3* db, int* target_plan_id, int client_id)
 		{
 			return RESULT_USER_EXIT;
 		}
-		system("cls");
+		system("clear");
 		for (int i = 0; i < amount_periods_max && plans_id[i] != 0; i++)
 		{
 			if (*target_plan_id == plans_id[i])
@@ -620,7 +620,7 @@ int update_menu(sqlite3* db, int* target_menu_id, int client_id)
 				while ((c = getchar()) != '\n' && c != EOF) {};
 				return RESULT_USER_EXIT;
 			}
-			system("cls");
+			system("clear");
 			for (int i = 0; i < max_menus_amount && menus_id[i] != 0; i++)
 			{
 				if (*target_menu_id == menus_id[i])
@@ -655,7 +655,7 @@ int update_login(sqlite3* db, char** target)
 	sqlite3_stmt* stmt;
 	do
 	{
-		system("cls");
+		system("clear");
 		memset(login, 0, 100);
 		printf("Enter your login (or press Enter to exit): ");
 		fgets(login, 100, stdin);
@@ -749,7 +749,7 @@ int update_weight(float* target)
 		}
 		if (*target <= 0)
 		{
-			system("cls");
+			system("clear");
 			printf("Incorrect number. Try again\n");
 			printf("------------------------------------------\n");
 		}
@@ -771,7 +771,7 @@ int update_height(float* target)
 		}
 		if (*target <= 0)
 		{
-			system("cls");
+			system("clear");
 			printf("Incorrect number. Try again\n");
 			printf("------------------------------------------\n");
 		}

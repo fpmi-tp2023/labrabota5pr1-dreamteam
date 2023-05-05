@@ -14,7 +14,7 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 int enter_correct_date(char** target)
 {
 	regex_t regex;
-	int reti = regcomp(&regex, "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 0);
+	int reti = regcomp(&regex, "^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$", 0);
 	if (reti) {
 		print_error_prompt("Error when checking the correct date format");
 		return RESULT_ERROR_UNKNOWN;
@@ -83,7 +83,7 @@ int display_all(sqlite3* db, int what_to_display)
 	printf("-------------------------------------\n");
     rc = sqlite3_exec(db, query, callback, 0, &err_msg);
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("Error when displaying data: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		sqlite3_free(query);
@@ -108,7 +108,7 @@ int delete_all(sqlite3* db)
 
 	int rc = sqlite3_exec(db, sql1, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("Error when deleting clients: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -118,7 +118,7 @@ int delete_all(sqlite3* db)
 
 	rc = sqlite3_exec(db, sql2, 0, 0, &err_msg);
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("Error when deleting orders: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -131,11 +131,16 @@ int disp_money_period(sqlite3* db)
 {
 	char* start_date = NULL;
 	char* end_date = NULL;
+	printf("Start date\n");
+	printf("------------------------------------------\n");
 	int res = enter_correct_date(&start_date);
 	if (res != RESULT_SUCCESS)
 	{
 		return res;
 	}
+	system("clear");
+	printf("End date\n");
+        printf("------------------------------------------\n");
 	res = enter_correct_date(&end_date);
 	if (res != RESULT_SUCCESS)
 	{
@@ -146,14 +151,15 @@ int disp_money_period(sqlite3* db)
 	char* zErrMsg = 0;
 	int rc;
 
-	char sql[100];
+	char sql[200];
 
 	sprintf(sql, "SELECT SUM(Meal_Plan.price) AS Revenue FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id "
 	"WHERE Orders.date BETWEEN '%s' AND '%s';", start_date, end_date);
 
+	system("clear");
 	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("SQL error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
 		return RESULT_ERROR_UNKNOWN;
@@ -177,7 +183,7 @@ int disp_most_popular_menu(sqlite3* db)
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("SQL error: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		return RESULT_ERROR_UNKNOWN;
@@ -196,7 +202,7 @@ int disp_sold_plans(sqlite3* db)
 	int rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("SQL error: %s\n", err_msg);
 		sqlite3_free(err_msg);
 		sqlite3_free(sql);
@@ -241,7 +247,7 @@ int update_prices(sqlite3* db)
 	sqlite3_stmt* stmt;
 	do
 	{
-		system("cls");
+		system("clear");
 		printf("Enter plan id to update or 0 to update all plans (enter a non-number to exit): ");
 		if (scanf("%d", &plan_id) == 0)
 		{
@@ -278,7 +284,7 @@ int update_prices(sqlite3* db)
 	int percent;
 	do
 	{
-		system("cls");
+		system("clear");
 		printf("Plan to be updated:\n");
 		printf("------------------------------------------\n");
 		printf("Type: %s\n", sqlite3_column_text(stmt, 1));
@@ -298,7 +304,7 @@ int update_prices(sqlite3* db)
 		{
 			print_error_prompt("Incorrect number. Try again");
 		}
-		system("cls");
+		system("clear");
 	} while (percent < -100 || percent > 100);
 
 	if (plan_id == 0)
@@ -315,7 +321,7 @@ int update_prices(sqlite3* db)
 	rc = sqlite3_exec(db, query, 0, 0, &err_msg);
 
 	if (rc != SQLITE_OK) {
-		system("cls");
+		system("clear");
 		printf("Error when trying to update prices: %s\n", err_msg);
 		sqlite3_free(query);
 		sqlite3_free(err_msg);
@@ -330,7 +336,7 @@ int update_prices(sqlite3* db)
 int disp_orders_by_date(sqlite3* db)						
 {
 	char* date = NULL;
-	int res = enter_correct_date(date);
+	int res = enter_correct_date(&date);
 	if (res != RESULT_SUCCESS)
 	{
 		return res;
@@ -340,6 +346,8 @@ int disp_orders_by_date(sqlite3* db)
 	int rc;
 	char sql[100];
 	sprintf(sql, "SELECT * FROM Orders WHERE date = '%s'", date);
+	system("clear");
+	printf("------------------------------------------\n");
 	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 	if (rc != SQLITE_OK) {
 		print_error_prompt(err_msg);
