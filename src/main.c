@@ -209,6 +209,7 @@ int main()
                             }
                             system("cls");
                             print_result_prompt(result);
+			    result = RESULT_SUCCESS;
                             break;
 
                         case 3:

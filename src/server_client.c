@@ -40,7 +40,7 @@ int callback_weight(void* weight, int argc, char** argv, char** column_name) {
 void print_error_prompt(const char* error_message)
 {
 	system("cls");
-	printf(error_message);
+	printf("%s", error_message);
 	printf("\nPress enter to continue...\n");
     getchar();
 }

@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "../include/interface.h"
-//#include <regex.h>
+#include <regex.h>
 
 static int callback(void* data, int argc, char** argv, char** azColName) {
 
@@ -14,7 +14,7 @@ static int callback(void* data, int argc, char** argv, char** azColName) {
 int enter_correct_date(char** target)
 {
 	regex_t regex;
-	int reti = regcomp(&regex, "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 0);
+	int reti = regcomp(&regex, "^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$", 0);
 	if (reti) {
 		print_error_prompt("Error when checking the correct date format");
 		return RESULT_ERROR_UNKNOWN;
@@ -131,11 +131,16 @@ int disp_money_period(sqlite3* db)
 {
 	char* start_date = NULL;
 	char* end_date = NULL;
+	printf("Start date\n");
+	printf("------------------------------------------\n");
 	int res = enter_correct_date(&start_date);
 	if (res != RESULT_SUCCESS)
 	{
 		return res;
 	}
+	system("clear");
+	printf("End date\n");
+        printf("------------------------------------------\n");
 	res = enter_correct_date(&end_date);
 	if (res != RESULT_SUCCESS)
 	{
@@ -146,11 +151,12 @@ int disp_money_period(sqlite3* db)
 	char* zErrMsg = 0;
 	int rc;
 
-	char sql[100];
+	char sql[200];
 
 	sprintf(sql, "SELECT SUM(Meal_Plan.price) AS Revenue FROM Orders JOIN Meal_Plan ON Orders.plan_id = Meal_Plan.id "
 	"WHERE Orders.date BETWEEN '%s' AND '%s';", start_date, end_date);
 
+	system("clear");
 	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 	if (rc != SQLITE_OK) {
 		system("cls");
@@ -330,7 +336,7 @@ int update_prices(sqlite3* db)
 int disp_orders_by_date(sqlite3* db)						
 {
 	char* date = NULL;
-	int res = enter_correct_date(date);
+	int res = enter_correct_date(&date);
 	if (res != RESULT_SUCCESS)
 	{
 		return res;
@@ -340,6 +346,8 @@ int disp_orders_by_date(sqlite3* db)
 	int rc;
 	char sql[100];
 	sprintf(sql, "SELECT * FROM Orders WHERE date = '%s'", date);
+	system("clear");
+	printf("------------------------------------------\n");
 	rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 	if (rc != SQLITE_OK) {
 		print_error_prompt(err_msg);
