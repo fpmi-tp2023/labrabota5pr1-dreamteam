@@ -69,6 +69,8 @@ make
 bin/program
 ```
 
+### GitHub Pages:
+[Link](https://fpmi-tp2023.github.io/labrabota5pr1-dreamteam/)
 ### Contributing:
 The authors of the project:
 * Maxim Emelyanovich - coder 
